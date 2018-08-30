@@ -1,0 +1,120 @@
+---
+title: "Using AssessORF"
+shorttitle: "Using AsessORF"
+author: "Deepank Korandla"
+date: "`r doc_date()`"
+package: "`r pkg_ver('AssessORF')`"
+output: BiocStyle::pdf_document
+vignette: >
+  %\VignetteIndexEntry{Using AssessORF}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Introduction
+
+In genomics pipelines, a newly sequenced genome must be annotated before it can be analyzed and compared to other genomes. One of the crucial first steps in genome annotation is identification of gene boundaries within the genome, also known as gene finding or gene prediction. However, gene prediction is not an error-free process and can cause errors to propagate downstream. Errors especially occur at the start site of a gene because often times there are multiple possible start sites for a gene and the program can only use information from the genome to pick the best one. This package serves as a tool for assessing the quality of gene predictions and gene prediction programs, utilizing proteomics data and evolutionary conservation data as forms of evidence.
+
+Usage of the package typically happens in two steps:  
+1. Map and align the provided evidence (either proteomics data, evolutionary conservation data, or both) back to the central / focal genome.  
+2. Add in gene predictions for that central genome and categorize how much evidence there is supporting or against each gene in that set.  
+
+Each of these steps represents a key function of the package, and each of those two functions returns an object that contains the outcome of the corresponding step. The object returned from the first function will be refered to as the “mapping” object and the object returned from the second function will be refered to as the “results” object.  It is important to note that the that the mapping object built for a particular genome is not dependent upon the gene boundaries chosen for that genome, allowiing the same mapping object to be used to assess the quality of gene predictions from multiple programs.
+
+While both types of data are not required for creating mapping objects, generating a mapping object using only one type of data is still a long process. The next couple of sections will describe how to use the package from putting together the data to analyzing the results.
+
+Technical Details:
+Mapping objects are of class 'Assessment' and subclass 'DataMap', while results objects are of class 'Assessment' and subclass 'Results'. Both of these object types have their own ways to view and visualize the data stored in them. The function 'MapAssessmentData' performs the first step and returns a mapping object. The function 'AssessGenes' takes in a mapping object (along with gene predictions), performs the second step, and returns a results object.
+
+# Getting the Data
+
+The central genome should be in FASTA format.
+
+## Proteomics
+For this package, proteomics data should be given as a set of peptide sequences along with their associated confidence scores. This data is usually generated in the latter stages of the proteomics pipeline, following database searching of the mass spectra and statisitical analysis. Additionally, the data should come from experiments focused on sequencing the complete proteome of the organism. Proteomics datasets are available online through websites such as [ProteomeXchange](http://www.proteomexchange.org/) but may require additional steps before use with the package. For example, the ProteomeXchange serves as a repository for mass spectra data from proteomics experiments, and this data must first be search against a database and analyzed before use with the package.
+
+## Evolutionary Conservation
+Evolutionary conservation is determined by aligning genomes from closely related organisms to the central genome. This allows determination of how often sections in the central genome are covered by syntenic matches to related genomes and how often positions within those matching blocks correspond to start codons (ATG, GTG, TTG) in both genomes (central and related). Start codons in the central genome may be highly covered by syntenic matches to related genomes but they may not always line up with start codons in other genomes.
+
+Related genomes should be genomes from species that are closely related to the strain of the central genome. In most cases, using the set of non-partial genomes from the same genus will work best. However, if the number of available genomes for that genus is too small (less than a couple hundred), it may be necessary to use all genomes from a higher taxonomic rank or include closely related genera from the same family in the set.
+
+Related genomes for this package were downloaded from the Prokaryotes section of NCBI's [Genome Browser] (https://www.ncbi.nlm.nih.gov/genome/browse/#!/prokaryotes/) using the following protocol:
+1. Search for the taxon.  
+2. Exclude partial genomes (this is an option in the "Partial" section of the "Filters" menu).  
+3. Download the selected records to a CSV file.  
+There may also may be rare instances where there are too many genomes for a particular species (i.e. the 8352 genomes for *Streptococcus pneumoniae*). In those cases, remove all genomes for that species from the CSV file and replace them with only genomes for that species that are complete on the assembly level (this is an option in the "Assembly Level" section of the "Filters" menu).
+
+# Creating the Mapping Object
+
+After gathering the neccessary data, it is time to prepare them for use with the mapping function. For the proteomics data, put the peptide sequence into one vector and their confidence scores (if available) into a second vector. The two vectors should have the same length and have the proteomics hits in the same order (i.e. the score for the xth sequence in the sequence vector is at index x in the score vector).
+
+The central genome and the related genomes must be put SQL database. In order to accomplish this, I recommend using the DECIPHER package. Sample code for putting the genomes into the database is provided below:
+```r
+library(DECIPHER)
+
+## Path to the SQL database file (will be created if necessary)
+## dbFile <- ""
+
+## Path to the genome file (in FASTA format)
+## genomeFile <- ""
+
+## Path to the related genome files (in this example it comes from NCBI's genome browser).
+## rGenomesFile <- ""
+
+dbConn <- dbConnect(SQLite(), dbFile)
+
+x <- read.csv(rGenomesFile, stringsAsFactors=FALSE)
+
+## Extract the FTP links from the CSV file and make sure they are in the right format.
+ftps <- x$GenBank.FTP
+ftps <- paste(ftps, paste0(sapply(strsplit(ftps, "/", fixed=TRUE), tail, n=1),
+              "_genomic.fna.gz"), sep="/")
+ftps <- ftps[which(substring(ftps, 1, 6)=="ftp://")]
+
+## Add the file path to the central genome to the start of the vector of FTP links.
+ftps <- c(genomeFile, ftps)
+	
+l <- length(ftps)
+
+## This vector will hold which genomes were succesfully added to the database
+pass <- logical(l)
+
+## Add the sequences to the database.
+for (i in seq_len(l)) {
+	t <- try(Seqs2DB(ftps[i], "FASTA", dbConn, as.character(i),
+	                 compressRepeats=TRUE, verbose=FALSE), silent=TRUE)
+
+	if (class(t) != "try-error") {
+		pass[i] <- TRUE
+	}
+}
+
+## This vector contains the list of identifers of genomes in the database.
+## The first one, identifier "1", corresponds to the central genome.
+## The remaining identifers correspond to the related genomes.
+identifiers <- which(pass)
+
+dbDisconnect(dbConn)
+```
+
+Here's how to use the 'MapAssessmentData' function (following from the previous code):
+```r
+currMapObj <- MapAssessmentData(dbFile, ## File path to the SQL database containing the genomes
+                                central_ID = "1", ## Identifier for the central genome
+                                related_IDs = as.character(pass[-1]), ## Identifers for the related genomes
+                                protHits_Seqs = protSeqs, ## Sequences for the proteomics hits
+                                protHits_Scores = protScores, ## Confidence scores for the proteomics hits
+                                strainID = strain, ## The identifer for the strain
+                                speciesName = species) ## The name of the species
+```
+
+# Generating the Results Object
+
+1. Get genes (either from a gene prediction program or from online annotations).
+2. Parse genes into the three vectors: left boundaries, right boundaries, and strand information (+ or -).
+3. Use the 'AssessGenes' function.
+
+# Working with Multiple Results Objects
+
+Loop through objects, put them together, and analyze.
+Should I group by program or by strain?
