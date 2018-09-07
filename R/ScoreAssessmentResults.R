@@ -12,11 +12,9 @@
 #' 
 #' @examples
 #'
-#' \dontrun{
-#' ScoreAssessmentResults(myAssessmentResults, "a")
-#' ScoreAssessmentResults(myAssessmentResults, "c")
-#' ScoreAssessmentResults(myAssessmentResults, "p")
-#' }
+#' ScoreAssessmentResults(AssessORFData::GetResultsObject("ATCC17978"), "a")
+#' ScoreAssessmentResults(AssessORFData::GetResultsObject("ATCC17978"), "c")
+#' ScoreAssessmentResults(AssessORFData::GetResultsObject("ATCC17978"), "p")
 #' 
 ScoreAssesmentResults <- function(x, mode = "a") {
   if (class(x)[1] != "Assessment") {

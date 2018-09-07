@@ -96,6 +96,22 @@ myResObj <- AssessGenes(geneLeftPos = myGenesLeft,geneRightPos = myGenesRight,
                         geneStrand = myGenesStrand, inputMapObj = myMapObj)
 }
 
+## Example from vignette is shown below
+
+currMapObj <- AssessORFData::GetDataMapObj("ATCC17978")
+
+currProdigal <- readLines(system.file("extdata", "ATCC17978_Prodigal.sco", package = "AssessORF", mustWork = TRUE))[-1:-2]
+
+prodigalLeft <- as.numeric(sapply(strsplit(currProdigal, "_", fixed=TRUE), `[`, 2L))
+prodigalRight <- as.numeric(sapply(strsplit(currProdigal, "_", fixed=TRUE), `[`, 3L))
+prodigalStrand <- sapply(strsplit(currProdigal, "_", fixed=TRUE), `[`, 4L)
+
+currResObj <- AssessGenes(geneLeftPos = prodigalLeft,
+geneRightPos = prodigalRight,
+geneStrand = prodigalStrand,
+inputMapObj = currMapObj,
+geneSource = "Prodigal")
+
 }
 \seealso{
 \code{\link{Assessment-class}}

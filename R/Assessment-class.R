@@ -18,9 +18,7 @@
 #' 
 #' @examples
 #'
-#' \dontrun{
-#' as.matrix(myAssessmentResults)
-#' }
+#' as.matrix(AssessORFData::GetResultsObject("ATCC17978"))
 #'
 as.matrix.Assessment <- function(x, ...) {
   if (class(x)[1] != "Assessment") {
@@ -97,10 +95,8 @@ as.matrix.Assessment <- function(x, ...) {
 #' 
 #' @examples
 #'
-#' \dontrun{
-#' print(myAssessmentDataMap)
-#' print(myAssessmentResults)
-#' }
+#' print(AssessORFData::GetDataMapObj("ATCC17978"))
+#' print(AssessORFData::GetResultsObject("ATCC17978"))
 #'
 print.Assessment <- function(x, ...) {
   if (class(x)[1] != "Assessment") {
@@ -272,13 +268,10 @@ print.Assessment <- function(x, ...) {
 #' 
 #' @examples
 #'
-#' \dontrun{
-#' plot(myAssessmentDataMap)
-#' plot(myAssessmentResults)
-#' plot(myAssessmentDataMap, myAssessmentResults)
-#' plot(myAssessmentResults, myAssessmentDataMap)
-#' }
-#'
+#' plot(AssessORFData::GetDataMapObj("ATCC17978"))
+#' plot(AssessORFData::GetResultsObject("ATCC17978"))
+#' plot(AssessORFData::GetDataMapObj("ATCC17978"), AssessORFData::GetResultsObject("ATCC17978"))
+#' plot(AssessORFData::GetResultsObject("ATCC17978"), AssessORFData::GetDataMapObj("ATCC17978"))
 #'
 plot.Assessment <- function(x, y = NULL,
                             related_MinConStart = 0.8, ...) {
@@ -436,9 +429,7 @@ plot.Assessment <- function(x, y = NULL,
 #' 
 #' @examples
 #'
-#' \dontrun{
-#' mosaicplot(myAssessmentResults)
-#' }
+#' mosaicplot(AssessORFData::GetResultsObject("ATCC17978"))
 #'
 mosaicplot.Assessment <- function(x, ...) {
   if (class(x)[1] != "Assessment") {

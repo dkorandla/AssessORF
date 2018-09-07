@@ -17,11 +17,9 @@ Scores the results from the assessment of a set of genes using one of three mode
 }
 \examples{
 
-\dontrun{
-ScoreAssessmentResults(myAssessmentResults, "a")
-ScoreAssessmentResults(myAssessmentResults, "c")
-ScoreAssessmentResults(myAssessmentResults, "p")
-}
+ScoreAssessmentResults(AssessORFData::GetResultsObject("ATCC17978"), "a")
+ScoreAssessmentResults(AssessORFData::GetResultsObject("ATCC17978"), "c")
+ScoreAssessmentResults(AssessORFData::GetResultsObject("ATCC17978"), "p")
 
 }
 \seealso{

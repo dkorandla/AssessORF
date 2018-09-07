@@ -32,13 +32,10 @@ evolutionary conservation data, and gene set map to the central genome is plotte
 }
 \examples{
 
-\dontrun{
-plot(myAssessmentDataMap)
-plot(myAssessmentResults)
-plot(myAssessmentDataMap, myAssessmentResults)
-plot(myAssessmentResults, myAssessmentDataMap)
-}
-
+plot(AssessORFData::GetDataMapObj("ATCC17978"))
+plot(AssessORFData::GetResultsObject("ATCC17978"))
+plot(AssessORFData::GetDataMapObj("ATCC17978"), AssessORFData::GetResultsObject("ATCC17978"))
+plot(AssessORFData::GetResultsObject("ATCC17978"), AssessORFData::GetDataMapObj("ATCC17978"))
 
 }
 \seealso{

@@ -23,10 +23,8 @@ score of the gene set.
 }
 \examples{
 
-\dontrun{
-print(myAssessmentDataMap)
-print(myAssessmentResults)
-}
+print(AssessORFData::GetDataMapObj("ATCC17978"))
+print(AssessORFData::GetResultsObject("ATCC17978"))
 
 }
 \seealso{

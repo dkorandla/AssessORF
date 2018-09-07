@@ -21,9 +21,7 @@ column representing a length bin and each row / block representing a category.
 }
 \examples{
 
-\dontrun{
-mosaicplot(myAssessmentResults)
-}
+mosaicplot(AssessORFData::GetResultsObject("ATCC17978"))
 
 }
 \seealso{

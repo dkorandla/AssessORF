@@ -24,9 +24,7 @@ that category.
 }
 \examples{
 
-\dontrun{
-as.matrix(myAssessmentResults)
-}
+as.matrix(AssessORFData::GetResultsObject("ATCC17978"))
 
 }
 \seealso{
