@@ -287,8 +287,8 @@ AssessGenes <- function(geneLeftPos,
     stop("'minMissORFLen' must consist of exactly one number.")
   }
   
-  if ((minMissORFLen %% 1 != 0) || (minMissORFLen <= 0)) {
-    stop("'minMissORFLen' must be a non-negative integer greater than 0.")
+  if ((minMissORFLen %% 1 != 0) || (minMissORFLen < 0)) {
+    stop("'minMissORFLen' must be a non-negative integer greater than or equal to 0.")
   }
   
   if ((!is.logical(allowNestedORFs)) ||(anyNA(allowNestedORFs)) || (length(allowNestedORFs) != 1)) {
