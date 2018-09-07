@@ -88,10 +88,14 @@
 #' 
 #' @examples
 #'
+#' ## Example showing the minimum number of arguments that need to be specified:
+#'
 #' \dontrun{
 #' myResObj <- AssessGenes(geneLeftPos = myGenesLeft,geneRightPos = myGenesRight,
 #'                         geneStrand = myGenesStrand, inputMapObj = myMapObj)
 #' }
+#'
+#'
 #'
 #' ## Example from vignette is shown below
 #'

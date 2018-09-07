@@ -118,13 +118,30 @@ mapped to the genome. Error checking will not occur for any arguments that invol
 }
 \examples{
 
+## Example showing the minimum number of arguments that need to be specified
+## to map both proteomics and evolutionary conservation data:
+
 \dontrun{
-## Minimum number of arguments that the user needs to specify
-## to map both proteomics and conservation data
 myMapObj <- MapAssessmentData(myDBFile, central_ID = "1",
                               related_IDs = as.character(2:1001),
                               protHits_Seqs = myProtSeqs)
 }
+
+
+## Runnable example that uses evolutionary conservation data only:
+## Human adenovirus 1 is the strain of interest, and the set of Adenoviridae
+## genomes will serve as the set of genome. The cenral genome, also known as
+## the genome of human adenovirus 1, is at identifier 1. The related genomes
+## are at identifiers 2 - 105.
+
+myMapObj <- MapAssessmentData(system.file("extdata",
+                                          "Adenoviridae.sqlite",
+                                          package = "AssessORF"),
+                              central_ID = "1",
+                              related_IDs = as.character(2:105),
+                              speciesName = "Human adenovirus 1",
+                              useProt = FALSE)
+
 
 }
 \seealso{
