@@ -18,7 +18,7 @@
 #' 
 #' @examples
 #'
-#' as.matrix(AssessORFData::GetResultsObject("ATCC17978"))
+#' as.matrix(readRDS(system.file("extdata", "ATCC17978_PreSaved_ResultsObj_Prodigal.rds", package = "AssessORF")))
 #'
 as.matrix.Assessment <- function(x, ...) {
   if (class(x)[1] != "Assessment") {
@@ -95,8 +95,8 @@ as.matrix.Assessment <- function(x, ...) {
 #' 
 #' @examples
 #'
-#' print(AssessORFData::GetDataMapObj("ATCC17978"))
-#' print(AssessORFData::GetResultsObject("ATCC17978"))
+#' print(readRDS(system.file("extdata", "ATCC17978_PreSaved_DataMapObj.rds", package = "AssessORF")))
+#' print(readRDS(system.file("extdata", "ATCC17978_PreSaved_ResultsObj_Prodigal.rds", package = "AssessORF")))
 #'
 print.Assessment <- function(x, ...) {
   if (class(x)[1] != "Assessment") {
@@ -268,10 +268,15 @@ print.Assessment <- function(x, ...) {
 #' 
 #' @examples
 #'
-#' plot(AssessORFData::GetDataMapObj("ATCC17978"))
-#' plot(AssessORFData::GetResultsObject("ATCC17978"))
-#' plot(AssessORFData::GetDataMapObj("ATCC17978"), AssessORFData::GetResultsObject("ATCC17978"))
-#' plot(AssessORFData::GetResultsObject("ATCC17978"), AssessORFData::GetDataMapObj("ATCC17978"))
+#' plot(readRDS(system.file("extdata", "ATCC17978_PreSaved_DataMapObj.rds", package = "AssessORF")))
+#' 
+#' plot(readRDS(system.file("extdata", "ATCC17978_PreSaved_ResultsObj_Prodigal.rds", package = "AssessORF")))
+#' 
+#' plot(readRDS(system.file("extdata", "ATCC17978_PreSaved_DataMapObj.rds", package = "AssessORF")),
+#' readRDS(system.file("extdata", "ATCC17978_PreSaved_ResultsObj_Prodigal.rds", package = "AssessORF")))
+#' 
+#' plot(readRDS(system.file("extdata", "ATCC17978_PreSaved_ResultsObj_Prodigal.rds", package = "AssessORF")),
+#' readRDS(system.file("extdata", "ATCC17978_PreSaved_DataMapObj.rds", package = "AssessORF")))
 #'
 plot.Assessment <- function(x, y = NULL,
                             related_MinConStart = 0.8, ...) {
@@ -429,7 +434,7 @@ plot.Assessment <- function(x, y = NULL,
 #' 
 #' @examples
 #'
-#' mosaicplot(AssessORFData::GetResultsObject("ATCC17978"))
+#' mosaicplot(readRDS(system.file("extdata", "ATCC17978_PreSaved_ResultsObj_Prodigal.rds", package = "AssessORF")))
 #'
 mosaicplot.Assessment <- function(x, ...) {
   if (class(x)[1] != "Assessment") {

@@ -21,7 +21,7 @@ column representing a length bin and each row / block representing a category.
 }
 \examples{
 
-mosaicplot(AssessORFData::GetResultsObject("ATCC17978"))
+mosaicplot(readRDS(system.file("extdata", "ATCC17978_PreSaved_ResultsObj_Prodigal.rds", package = "AssessORF")))
 
 }
 \seealso{

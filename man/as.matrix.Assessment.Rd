@@ -24,7 +24,7 @@ that category.
 }
 \examples{
 
-as.matrix(AssessORFData::GetResultsObject("ATCC17978"))
+as.matrix(readRDS(system.file("extdata", "ATCC17978_PreSaved_ResultsObj_Prodigal.rds", package = "AssessORF")))
 
 }
 \seealso{

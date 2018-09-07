@@ -32,10 +32,15 @@ evolutionary conservation data, and gene set map to the central genome is plotte
 }
 \examples{
 
-plot(AssessORFData::GetDataMapObj("ATCC17978"))
-plot(AssessORFData::GetResultsObject("ATCC17978"))
-plot(AssessORFData::GetDataMapObj("ATCC17978"), AssessORFData::GetResultsObject("ATCC17978"))
-plot(AssessORFData::GetResultsObject("ATCC17978"), AssessORFData::GetDataMapObj("ATCC17978"))
+plot(readRDS(system.file("extdata", "ATCC17978_PreSaved_DataMapObj.rds", package = "AssessORF")))
+
+plot(readRDS(system.file("extdata", "ATCC17978_PreSaved_ResultsObj_Prodigal.rds", package = "AssessORF")))
+
+plot(readRDS(system.file("extdata", "ATCC17978_PreSaved_DataMapObj.rds", package = "AssessORF")),
+readRDS(system.file("extdata", "ATCC17978_PreSaved_ResultsObj_Prodigal.rds", package = "AssessORF")))
+
+plot(readRDS(system.file("extdata", "ATCC17978_PreSaved_ResultsObj_Prodigal.rds", package = "AssessORF")),
+readRDS(system.file("extdata", "ATCC17978_PreSaved_DataMapObj.rds", package = "AssessORF")))
 
 }
 \seealso{

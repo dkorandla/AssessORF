@@ -12,9 +12,11 @@
 #' 
 #' @examples
 #'
-#' ScoreAssessmentResults(AssessORFData::GetResultsObject("ATCC17978"), "a")
-#' ScoreAssessmentResults(AssessORFData::GetResultsObject("ATCC17978"), "c")
-#' ScoreAssessmentResults(AssessORFData::GetResultsObject("ATCC17978"), "p")
+#' ScoreAssessmentResults(readRDS(system.file("extdata", "ATCC17978_PreSaved_ResultsObj_Prodigal.rds", package = "AssessORF")), "a")
+#' 
+#' ScoreAssessmentResults(readRDS(system.file("extdata", "ATCC17978_PreSaved_ResultsObj_Prodigal.rds", package = "AssessORF")), "c")
+#' 
+#' ScoreAssessmentResults(readRDS(system.file("extdata", "ATCC17978_PreSaved_ResultsObj_Prodigal.rds", package = "AssessORF")), "p")
 #' 
 ScoreAssesmentResults <- function(x, mode = "a") {
   if (class(x)[1] != "Assessment") {

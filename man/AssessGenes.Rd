@@ -98,9 +98,9 @@ myResObj <- AssessGenes(geneLeftPos = myGenesLeft,geneRightPos = myGenesRight,
 
 ## Example from vignette is shown below
 
-currMapObj <- AssessORFData::GetDataMapObj("ATCC17978")
+currMapObj <- readRDS(system.file("extdata", "ATCC17978_PreSaved_DataMapObj.rds", package = "AssessORF"))
 
-currProdigal <- readLines(system.file("extdata", "ATCC17978_Prodigal.sco", package = "AssessORF", mustWork = TRUE))[-1:-2]
+currProdigal <- readLines(system.file("extdata", "ATCC17978_Prodigal.sco", package = "AssessORF"))[-1:-2]
 
 prodigalLeft <- as.numeric(sapply(strsplit(currProdigal, "_", fixed=TRUE), `[`, 2L))
 prodigalRight <- as.numeric(sapply(strsplit(currProdigal, "_", fixed=TRUE), `[`, 3L))

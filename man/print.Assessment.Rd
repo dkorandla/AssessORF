@@ -23,8 +23,8 @@ score of the gene set.
 }
 \examples{
 
-print(AssessORFData::GetDataMapObj("ATCC17978"))
-print(AssessORFData::GetResultsObject("ATCC17978"))
+print(readRDS(system.file("extdata", "ATCC17978_PreSaved_DataMapObj.rds", package = "AssessORF")))
+print(readRDS(system.file("extdata", "ATCC17978_PreSaved_ResultsObj_Prodigal.rds", package = "AssessORF")))
 
 }
 \seealso{

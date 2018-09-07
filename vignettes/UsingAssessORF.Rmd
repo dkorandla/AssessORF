@@ -148,9 +148,13 @@ Below is an example of how to use the `AssessGenes` function, using the pre-save
 ```{r message = FALSE}
 library(AssessORF)
 
-currMapObj <- AssessORFData::GetDataMapObj("ATCC17978")
+currMapObj <- readRDS(system.file("extdata",
+                                  "ATCC17978_PreSaved_DataMapObj.rds",
+                                  package = "AssessORF"))
 
-currProdigal <- readLines(system.file("extdata", "ATCC17978_Prodigal.sco", package = "AssessORF"))[-1:-2]
+currProdigal <- readLines(system.file("extdata",
+                                      "ATCC17978_Prodigal.sco",
+                                      package = "AssessORF"))[-1:-2]
 
 prodigalLeft <- as.numeric(sapply(strsplit(currProdigal, "_", fixed=TRUE), `[`, 2L))
 prodigalRight <- as.numeric(sapply(strsplit(currProdigal, "_", fixed=TRUE), `[`, 3L))
