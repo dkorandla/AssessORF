@@ -144,16 +144,16 @@ currMapObj <- MapAssessmentData(dbFile, ## File path to the SQL database contain
   + The left boundary positions and the right boundary positions of the genes must be in forward strand terms, i.e. where they would be the 5' to 3' reading direction of the forward strand. For genes on the forward strand, this means that the left boundaries correspond to the start of the gene and the right boundaries correspond to the stop of the gene. For genes on the reverse strand, this means that the left boundaries correspond to the stop of the gene and the right boundaries correspond to the start of the gene. 
 3. Use the 'AssessGenes' function with the mapping object and the set of predicted genes to generate the results object.
 
-Below is an example of how to use the `AssessGenes` function, using the pre-saved mapping object for *Acinetobacter baumannii* ATCC17978 and the corresponding set of Prodigal-predicted genes.
+Below is an example of how to use the `AssessGenes` function, using the pre-saved mapping object for *Streptococcus pyogenes* MGAS5005 and the corresponding set of Prodigal-predicted genes.
 ```{r message = FALSE}
 library(AssessORF)
 
 currMapObj <- readRDS(system.file("extdata",
-                                  "ATCC17978_PreSaved_DataMapObj.rds",
+                                  "MGAS5005_PreSaved_DataMapObj.rds",
                                   package = "AssessORF"))
 
 currProdigal <- readLines(system.file("extdata",
-                                      "ATCC17978_Prodigal.sco",
+                                      "MGAS5005_Prodigal.sco",
                                       package = "AssessORF"))[-1:-2]
 
 prodigalLeft <- as.numeric(sapply(strsplit(currProdigal, "_", fixed=TRUE), `[`, 2L))
