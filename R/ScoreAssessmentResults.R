@@ -18,7 +18,7 @@
 #' 
 #' ScoreAssessmentResults(readRDS(system.file("extdata", "ATCC17978_PreSaved_ResultsObj_Prodigal.rds", package = "AssessORF")), "p")
 #' 
-ScoreAssesmentResults <- function(x, mode = "a") {
+ScoreAssessmentResults <- function(x, mode = "a") {
   if (class(x)[1] != "Assessment") {
     stop("x must be an object of class 'Assessment'.")
   }

@@ -171,13 +171,13 @@ print.Assessment <- function(x, ...) {
     ## --------------------------------------------------------------------------------------------------------------- ##
     
     printOut <- paste(printOut, "Score Using All Evidence: ",
-                      round(ScoreAssesmentResults(x), 6), "\n", sep = "")
+                      round(ScoreAssessmentResults(x), 6), "\n", sep = "")
     
     printOut <- paste(printOut, "Score Using Only Proteomic Evidence: ",
-                      round(ScoreAssesmentResults(x, "p"), 6), "\n", sep = "")
+                      round(ScoreAssessmentResults(x, "p"), 6), "\n", sep = "")
     
     printOut <- paste(printOut, "Score Using Only Conserved Start Evidence: ",
-                      round(ScoreAssesmentResults(x, "c"), 6), "\n\n", sep = "")
+                      round(ScoreAssessmentResults(x, "c"), 6), "\n\n", sep = "")
     
     ## --------------------------------------------------------------------------------------------------------------- ##
     
