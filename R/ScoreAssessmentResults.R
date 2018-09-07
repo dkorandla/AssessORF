@@ -20,15 +20,15 @@
 #' 
 ScoreAssessmentResults <- function(x, mode = "a") {
   if (class(x)[1] != "Assessment") {
-    stop("x must be an object of class 'Assessment'.")
+    stop("'x' must be an object of class 'Assessment'.")
   }
   
   if (class(x)[2] != "Results") {
-    stop("x must be of subclass 'Results'.")
+    stop("'x' must be of subclass 'Results'.")
   }
   
   if ((!is.character(mode)) || (anyNA(mode)) || (length(mode) != 1) || nchar(mode) != 1) {
-    stop("mode must be a valid, single character.")
+    stop("'mode' must be a valid, single character.")
   }
   
   catSumTable <- table(x$CategoryAssignments)

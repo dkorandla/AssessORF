@@ -118,7 +118,7 @@ AssessGenes <- function(geneLeftPos,
                         geneStrand,
                         inputMapObj,
                         geneSource = "",
-                        minCov = 10,
+                        minCov = 10L,
                         minConCovRatio_Best = 0.99,
                         limConCovRatio_NotCon = 0.8,
                         minConCovRatio_Stop = 0.7,
@@ -129,8 +129,8 @@ AssessGenes <- function(geneLeftPos,
                         verbose = TRUE) {
   ## Check inputs for error.
   
-  if (!is.logical(verbose)) {
-    stop("'verbose' must be of type logical.")
+  if ((!is.logical(verbose)) ||(anyNA(verbose)) || (length(verbose) != 1)) {
+    stop("'verbose' must be of type logical, be either TRUE or FALSE, and consist of only 1 element.")
   }
   
   ## --------------------------------------------------------------------------------------------------------------- ##
@@ -139,7 +139,7 @@ AssessGenes <- function(geneLeftPos,
     stop("'inputMapObj' cannot have any NAs or have more than one element.")
   }
   
-  if ((is(inputMapObj, "Assessment")) || (is(inputMapObj, "DataMap"))) {
+  if ((is(inputMapObj, "Assessment")) && (is(inputMapObj, "DataMap"))) {
     mapObj <- inputMapObj
   } else if (is.character(inputMapObj) && (length(inputMapObj) == 1)){
     if (!("package:AssessORFData" %in% search())) {
@@ -156,8 +156,7 @@ AssessGenes <- function(geneLeftPos,
          "or be a single character string.")
   }
   
-  
-  
+  ## Get the genome length to use for checking gene boundaries.
   genomeLength <- mapObj$GenomeLength
   
   ## --------------------------------------------------------------------------------------------------------------- ##
@@ -207,6 +206,97 @@ AssessGenes <- function(geneLeftPos,
   ## Left positions must be less than the corresponding right positions. Stop otherwise.
   if (any(geneLeftPos >= geneRightPos)) {
     stop("Left positions fpr all genes must be strictly less than the corresponding right positions.")
+  }
+  
+  ## --------------------------------------------------------------------------------------------------------------- ##
+  
+  if ((!is.character(geneSource)) || (anyNA(geneSource))) {
+    stop("'geneSource' must be a valid character string.")
+  }
+  
+  if (length(geneSource) != 1) {
+    stop("'geneSource' must consist of exactly one character string.")
+  }
+  
+  if ((!is.numeric(minCov))  || (anyNA(minCov))) {
+    stop("The minimum number of related genomes required must be a valid real number.")
+  }
+  
+  if (length(minCov) != 1) {
+    stop("Exactly one number must be inputted as the minimum number of related genomes required.")
+  }
+  
+  if ((minCov %% 1 != 0) || (minCov <= 0)) {
+    stop("The minimum number of related genomes required must be a ",
+         "non-negative integer that is greater than 0.")
+  }
+  
+  if ((!is.numeric(minConCovRatio_Best)) || (anyNA(minConCovRatio_Best))) {
+    stop("'minConCovRatio_Best' must be a valid real number.")
+  }
+  
+  if (length(minConCovRatio_Best) != 1) {
+    stop("'minConCovRatio_Best' must consist of exactly one number.")
+  }
+  
+  if ((minConCovRatio_Best <= 0) || (minConCovRatio_Best >= 1)) {
+    stop("'minConCovRatio_Best' must be greater than 0 and less than 1.")
+  }
+  
+  if ((!is.numeric(limConCovRatio_NotCon)) || (anyNA(limConCovRatio_NotCon))) {
+    stop("'limConCovRatio_NotCon' must be a valid real number.")
+  }
+  
+  if (length(limConCovRatio_NotCon) != 1) {
+    stop("'limConCovRatio_NotCon' must consist of exactly one number.")
+  }
+  
+  if ((limConCovRatio_NotCon <= 0) || (limConCovRatio_NotCon >= 1)) {
+    stop("'limConCovRatio_NotCon' must be greater than 0 and less than 1.")
+  }
+  
+  if ((!is.numeric(minConCovRatio_Stop)) || (anyNA(minConCovRatio_Stop))) {
+    stop("'minConCovRatio_Stop' must be a valid real number.")
+  }
+  
+  if (length(minConCovRatio_Stop) != 1) {
+    stop("'minConCovRatio_Stop' must consist of exactly one number.")
+  }
+  
+  if ((minConCovRatio_Stop <= 0) || (minConCovRatio_Stop >= 1)) {
+    stop("'minConCovRatio_Stop' must be greater than 0 and less than 1.")
+  }
+  
+  if ((!is.numeric(noConStopsGeneFrac)) || (anyNA(noConStopsGeneFrac))) {
+    stop("'noConStopsGeneFrac' must be a valid real number.")
+  }
+  
+  if (length(noConStopsGeneFrac) != 1) {
+    stop("'noConStopsGeneFrac' must consist of exactly one number.")
+  }
+  
+  if ((noConStopsGeneFrac <= 0) || (noConStopsGeneFrac >= 1)) {
+    stop("'noConStopsGeneFrac' must be greater than 0 and less than 1.")
+  }
+  
+  if ((!is.numeric(minMissORFLen)) || (anyNA(minMissORFLen))) {
+    stop("'minMissORFLen' must be a valid real number.")
+  }
+  
+  if (length(minMissORFLen) != 1) {
+    stop("'minMissORFLen' must consist of exactly one number.")
+  }
+  
+  if ((minMissORFLen %% 1 != 0) || (minMissORFLen <= 0)) {
+    stop("'minMissORFLen' must be a non-negative integer greater than 0.")
+  }
+  
+  if ((!is.logical(allowNestedORFs)) ||(anyNA(allowNestedORFs)) || (length(allowNestedORFs) != 1)) {
+    stop("'allowNestedORFs' must be of type logical, be either TRUE or FALSE, and consist of only 1 element.")
+  }
+  
+  if ((!is.logical(useNTermProt)) ||(anyNA(useNTermProt)) || (length(useNTermProt) != 1)) {
+    stop("'useNTermProt' must be of type logical, be either TRUE or FALSE, and consist of only 1 element.")
   }
   
   ## --------------------------------------------------------------------------------------------------------------- ##

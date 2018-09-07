@@ -283,7 +283,7 @@ MapAssessmentData <- function(genomes_DBFile,
     ## --------------------------------------------------------------------------------------------------------------- ##
     
     if ((!is.logical(protHits_IsNTerm)) ||(anyNA(protHits_IsNTerm)) || (length(protHits_IsNTerm) != 1)) {
-      stop("'useCons' must be of type logical, be either TRUE or FALSE, and consist of only 1 element.")
+      stop("'protHits_IsNTerm' must be of type logical, be either TRUE or FALSE, and consist of only 1 element.")
     }
   }
   
@@ -307,7 +307,7 @@ MapAssessmentData <- function(genomes_DBFile,
     }
     
     if (length(related_KMerLen) != 1) {
-      stop("Exactly one number must be inputted as the length of k-mers to use in distance measuring .")
+      stop("Exactly one number must be inputted as the length of k-mers to use in distance measuring.")
     }
     
     if ((related_KMerLen %% 1 != 0) || (related_KMerLen <= 0) ||(related_KMerLen >= 11)) {
@@ -361,6 +361,8 @@ MapAssessmentData <- function(genomes_DBFile,
       stop("'startCodons' must consist only of three-letter DNA strings.")
     }
   }
+  
+  ## --------------------------------------------------------------------------------------------------------------- ##
   
   if ((!is.character(strainID)) || (anyNA(strainID))) {
     stop("The strain ID must be a valid character string.")

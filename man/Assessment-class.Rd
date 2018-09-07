@@ -27,8 +27,10 @@ forms of evidence to determine the evidence for each gene in a given set.
     \item{\code{RevProtHits}}{Proteomic hit information that maps to the three reverse frames of the central genome}
     \item{\code{FwdCoverage}}{Coverage of the forward strand of the central genome}
     \item{\code{FwdConStarts}}{Start codon conservation of the forward strand of the central genome}
+    \item{\code{FwdConStops}}{Stop codon conservation of the forward strand of the central genome}
     \item{\code{RevCoverage}}{Coverage of the reverse strand of the central genome}
     \item{\code{RevConStarts}}{Start codon conservation of the reverse strand of the central genome}
+    \item{\code{RevConStops}}{Stop codon conservation of the reverse strand of the central genome}
     \item{\code{NumRelatedGenomes}}{Number of related genomes that were mapped to the central genome}
     \item{\code{HasProteomics}}{Logical describing whether or not proteomics evidence has been mapped to the central genome}
     \item{\code{HasConservation}}{Logical describing whether or not evolutionary conservation evidence has been mapped to the central genome}
@@ -48,6 +50,7 @@ forms of evidence to determine the evidence for each gene in a given set.
     \item{\code{GeneLeftPos}}{Left positions of the given set of genes (in forward strand terms)}
     \item{\code{GeneRightPos}}{Right positions of the given set of genes (in forward strand terms)}
     \item{\code{GeneStrand}}{Strand information of the given set of genes ("+" or "-")}
+    \item{\code{GeneSource}}{The source of the given set of genes}
     \item{\code{NumGenes}}{Number of genes given}
     \item{\code{N_CS-_PE+_ORFs}}{Data for open reading frames with no gene start but with proteomics evidence}
     \item{\code{N_CS+_PE+_ORFs}}{Data for open reading frames with no gene start but with proteomics evidence and at least one
@@ -70,6 +73,7 @@ forms of evidence to determine the evidence for each gene in a given set.
     \item{\code{Y CS+ PE-}}{There is a good conserved start aligned with the gene start without protein evidence downstream.}
     \item{\code{Y CS- PE+}}{There is no good conserved start aligned with the predicted start, and there is protein evidence downstream of the gene start.}
     \item{\code{Y CS- PE-}}{There is no good conserved start aligned with the predicted start, and there is no protein evidence downstream of the gene start.}
+    \item{\code{Y CS! PE-}}{There is a good conserved start in the middle of the gene, and there is no protein evidence downstream of the gene start.}
     \item{\code{Y CS< PE!}}{The protein evidence disagrees with / is upstream of the gene start, and there is a good conserved start upstream of the protein evidence.}
     \item{\code{Y CS- PE!}}{The protein evidence disagrees with / is upstream of the gene start, and there is no good conserved start upstream of the protein evidence.}
     \item{\code{Y CS> PE+}}{The best conserved starts are downstream of the predicted start, and there is protein evidence downstream of the gene start.}
