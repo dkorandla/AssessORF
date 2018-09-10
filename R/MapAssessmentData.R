@@ -136,7 +136,7 @@
 #'                                           "Adenoviridae.sqlite",
 #'                                           package = "AssessORF"),
 #'                               central_ID = "1",
-#'                               related_IDs = as.character(2:105),
+#'                               related_IDs = as.character(2:53),
 #'                               speciesName = "Human adenovirus 1",
 #'                               useProt = FALSE)
 #' 
