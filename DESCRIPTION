@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Package: AssessORF
 Type: Package
 Title: Assess Gene Predictions Using Proteomics and Evolutionary Conservation
@@ -23,3 +24,30 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.0
 VignetteBuilder: knitr
+=======
+Package: AssessORF
+Type: Package
+Title: Assess Gene Predictions Using Proteomics and Evolutionary Conservation
+Version: 0.99.10
+Date: 2018-06-04
+Authors@R: c(
+    person("Deepank", "Korandla", email = "dkorandl@andrew.cmu.edu", role = c("aut", "cre")),
+    person("Erik", "Wright", email = "eswright@pitt.edu", role = "aut"))
+Description: In order to assess the quality of a set of predicted genes for a genome, evidence
+    must first be mapped to that genome. Next, each gene must be categorized based on how strong
+    the evidence is for or against that gene. The AssessORF package provides the functions and
+    class structures necessary for accomplishing those tasks, using proteomic hits and
+    evolutionarily conserved start codons as the forms of evidence.
+Depends: R (>= 3.5.0), DECIPHER (>= 2.8.0)
+Imports: DECIPHER, graphics
+Suggests: BiocStyle,
+    knitr,
+    rmarkdown
+biocViews: ComparativeGenomics, GenePrediction, GenomeAnnotation, Genetics, Proteomics,
+    QualityControl, Visualization
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.0
+VignetteBuilder: knitr
+>>>>>>> master-holder

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ---
 title: "Using AssessORF"
 shorttitle: "Using AsessORF"
@@ -175,3 +176,182 @@ All of the output in this vignette was produced under the following conditions:
 ```{r echo = FALSE}
 print(sessionInfo(), locale = FALSE)
 ```
+=======
+---
+title: "Using AssessORF"
+shorttitle: "Using AsessORF"
+author: "Deepank Korandla"
+date: "`r doc_date()`"
+package: "`r pkg_ver('AssessORF')`"
+output: BiocStyle::pdf_document
+vignette: >
+  %\VignetteIndexEntry{Using AssessORF}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Introduction
+
+In genomics pipelines, a newly sequenced genome must be annotated before it can be analyzed and compared to other genomes. One of the crucial first steps in genome annotation is identification of gene boundaries within the genome, also known as gene finding or gene prediction. However, gene prediction is not an error-free process and errors can propagate in downstream analyses. As gene finding is simply the process of finding the bounds of each gene within the genome, errors can occur either in the choosing of the start of the gene or in the choosing of the stop of the gene. In reality, errors predominantly occur around the start site because often times there are multiple possible starts for a gene while there is almost always only one stop site possible for a gene. When there are multiple possible starts for a gene, *ab initio* gene prediction program are limited in that they can only use information from the sequence of the genome to pick the best start of the gene. Such programs utilize heuristics and scoring systems to come to a solution, but the chosen start for a gene might not be the start used *in vivo*. `AssessORF` serves as a tool for assessing the quality of gene predictions and gene prediction programs, utilizing proteomics data and evolutionary conservation data as forms of evidence.
+
+## Why Proteomics?
+
+One of the direct products of a gene are proteins, so mapping real protein fragments back to the corresponding genome can provide a rough guide as to where the genes are within a genome. In other words, aligning protein sequences to a genome can prove which genes from a set of predicted genes are definitively real as well as show which genes have starts that do not agree with the protein evidence. Protein evidence contradicts a gene start specifically when there are protein hits in the same open reading frame (ORF) that are directly upstream of or overlapping the start. Additionally, protein evidence to ORFs without a predicted gene can point towards the existence of potential genes missed by the gene finding program. The data from proteomics experiments focused on sequencing the complete set of proteins of an organism is thus highly useful in the assessing the quality of set of predicted genes for that organism.
+
+## Why Evolutionary Conservation?
+
+Closely related species usually have highly similar genomic sequences, and the relative positions of genes across closely related species are conserved. IThis means that the start positions for genes in one species' genome are expected to align with the start positions for genes in a closely related species' genome Aligning genomes from related species to a central genome (the genome of the organism of interest) therefore provides a way to determine whether or not the right decision was made in choosing the start for each predicted gene. Starts for genes in highly conserved areas of the central genome should also be highly conserved in order to be considered a good start.
+
+# Package Structure
+
+Assessing the quality of a set of computationally-derived, *ab initio* gene predictions for a genome requires external data to be aligned to that genome before judgments on quality can be made. `AssessORF` follows this methodology, and once that external data has been accquired and set up (see the "Getting the Data" section below), usage of the package typically happens in two steps:  
+1. Map and align the provided evidence, which can either be proteomics data, evolutionary conservation data, or both, back to the central genome.  
+2. Add in gene predictions for that central genome and categorize how much evidence there is supporting or against each gene in that set.  
+
+Each of these steps represents a key function of the package, and each of those two functions returns an object that contains the outcome of the corresponding step. The function `MapAssessmentData` performs the first step (mapping and alignment) and returns a "mapping" object. Within R, mapping objects are structured as lists and are of class `Assessment` and subclass `DataMap`. The function `AssessGenes` performs the second step (gene categorization) by taking in a mapping object and gene predictions and returning a "results" object. Results objects are also structured as lists and are of class `Assessment` and subclass `Results`. `AssessORF` provides functions for viewing and visualizing the data stored in both mapping and results objects, and the `Assessment` help documentation has detailed explanations of what is in each object and methods associated with each object. 
+
+It is important to note that the mapping object built for a particular genome is not dependent upon the gene boundaries chosen for that genome, allowing the same mapping object to be used to assess the quality of gene predictions from multiple programs. This is especially useful because generating a mapping object, even with using proteomics data or evolutionary conservation data by themselves, is a long process.
+
+Building off of these concepts, `AssessORF` has a corresponding data package, `AssessORFData`, that provides mapping objects that have already been built and saved for a set of 20 strains. `AssessORFData` also provides multiple results objects for each of those strains, and each results object for a strain uses a set of gene annotations from a different source. 
+
+The next couple of sections will describe how to use `AssessORF` from putting together the data to analyzing the results.
+
+# Installation
+
+In order to install the package, follow these steps:
+1. Install the latest version of R is installed using [CRAN](https://cran.r-project.org/).
+2. Install `AssessORF` in R by running the following commands:
+```{r eval = FALSE}
+source("https://bioconductor.org/biocLite.R")
+biocLite("AssessORF")
+```
+3. Optionally, install the corresponding data package, `AssessORFData`, using the following commands:
+```{r eval = FALSE}
+source("https://bioconductor.org/biocLite.R")
+biocLite("AssessORFData")
+```
+
+# Getting the Data
+
+The central genome should be in FASTA format.
+
+## Proteomics
+For this package, proteomics data should be given as a set of peptide sequences along with their associated confidence scores. This data is usually generated in the latter stages of the proteomics pipeline, following database searching of the mass spectra and statistical analysis. Additionally, the data should come from experiments focused on sequencing the complete proteome of the organism. Proteomics datasets are available online through websites such as [ProteomeXchange](http://www.proteomexchange.org/) but may require additional steps before use with the package. For example, the ProteomeXchange serves as a repository for mass spectra data from proteomics experiments, and this data must first be search against a database and analyzed before use with the package.
+
+## Evolutionary Conservation
+Evolutionary conservation is determined by aligning genomes from closely related organisms to the central genome. This allows determination of how often sections in the central genome are covered by syntenic matches to related genomes and how often positions within those matching blocks correspond to start codons (ATG, GTG, TTG) in both genomes (central and related). Start codons in the central genome may be highly covered by syntenic matches to related genomes but they may not always line up with start codons in other genomes.
+
+Related genomes should be genomes from species that are closely related to the strain of the central genome. In most cases, using the set of non-partial genomes from the same genus will work best. However, if the number of available genomes for that genus is too small (less than a couple hundred), it may be necessary to use all genomes from a higher taxonomic rank or include closely related genera from the same family in the set.
+
+Related genomes for this package were downloaded from the Prokaryotes section of NCBI's [Genome Browser](https://www.ncbi.nlm.nih.gov/genome/browse/#!/prokaryotes/) using the following protocol:
+1. Search for the taxon.  
+2. Exclude partial genomes (this is an option in the "Partial" section of the "Filters" menu).  
+3. Download the selected records to a CSV file.  
+There may also may be rare instances where there are too many genomes for a particular species (i.e. the 8352 genomes for *Streptococcus pneumoniae*). In those cases, remove all genomes for that species from the CSV file and replace them with only genomes for that species that are complete on the assembly level (this is an option in the "Assembly Level" section of the "Filters" menu).
+
+# Creating the Mapping Object
+
+After gathering the necessary data, it is time to prepare them for use with the mapping function. For the proteomics data, put the peptide sequence into one vector and their confidence scores (if available) into a second vector. The two vectors should have the same length and have the proteomics hits in the same order (i.e. the score for the xth sequence in the sequence vector is at index x in the score vector).
+
+The central genome and the related genomes must be put SQL database. In order to accomplish this, I recommend using the DECIPHER package. Sample code for putting the genomes into the database is provided below:
+```{r eval = FALSE}
+library(DECIPHER)
+
+## Path to the SQL database file (will be created if necessary)
+## dbFile <- ""
+
+## Path to the genome file (in FASTA format)
+## genomeFile <- ""
+
+## Path to the related genome files (in this example it comes from NCBI's genome browser).
+## rGenomesFile <- ""
+
+dbConn <- dbConnect(SQLite(), dbFile)
+
+x <- read.csv(rGenomesFile, stringsAsFactors=FALSE)
+
+## Extract the FTP links from the CSV file and make sure they are in the right format.
+ftps <- x$GenBank.FTP
+ftps <- paste(ftps, paste0(sapply(strsplit(ftps, "/", fixed=TRUE), tail, n=1),
+              "_genomic.fna.gz"), sep="/")
+ftps <- ftps[which(substring(ftps, 1, 6)=="ftp://")]
+
+## Add the file path to the central genome to the start of the vector of FTP links.
+ftps <- c(genomeFile, ftps)
+	
+l <- length(ftps)
+
+## This vector will hold which genomes were succesfully added to the database
+pass <- logical(l)
+
+## Add the sequences to the database.
+for (i in seq_len(l)) {
+	t <- try(Seqs2DB(ftps[i], "FASTA", dbConn, as.character(i),
+	                 compressRepeats=TRUE, verbose=FALSE), silent=TRUE)
+
+	if (!is(t, "try-error")) {
+		pass[i] <- TRUE
+	}
+}
+
+## This vector contains the list of identifers of genomes in the database.
+## The first one, identifier "1", corresponds to the central genome.
+## The remaining identifers correspond to the related genomes.
+identifiers <- which(pass)
+
+dbDisconnect(dbConn)
+```
+
+Here's how to use the `MapAssessmentData` function (following from the previous code):
+```{r eval = FALSE}
+currMapObj <- MapAssessmentData(dbFile, ## File path to the SQL database containing the genomes
+                                central_ID = "1", ## Identifier for the central genome
+                                related_IDs = as.character(pass[-1]), ## Identifers for the related genomes
+                                protHits_Seqs = protSeqs, ## Sequences for the proteomics hits
+                                protHits_Scores = protScores, ## Confidence scores for the proteomics hits
+                                strainID = strain, ## The identifer for the strain
+                                speciesName = species) ## The name of the species
+```
+
+# Generating the Results Object
+
+1. Acquire a set of genes, either from a gene prediction program or from an online database with annotations, for the strain of interest.
+  + Make sure that the same genome sequence is used to generate both the mapping object and set of genes to assess.
+2. Parse genes into the three vectors: left boundaries, right boundaries, and strand information.
+  + This requires an understanding of how the output from the gene source is structured and will vary from program to program.
+  + Strand information must be given as a single character and must either be "+" or "-". "+" refers to the forward strand, the given sequence for the central genome. "-" refers to the reverse strand, the reverse complement of the given sequence for the central genome.
+  + The left boundary positions and the right boundary positions of the genes must be in forward strand terms, i.e. where they would be the 5' to 3' reading direction of the forward strand. For genes on the forward strand, this means that the left boundaries correspond to the start of the gene and the right boundaries correspond to the stop of the gene. For genes on the reverse strand, this means that the left boundaries correspond to the stop of the gene and the right boundaries correspond to the start of the gene. 
+3. Use the 'AssessGenes' function with the mapping object and the set of predicted genes to generate the results object.
+
+Below is an example of how to use the `AssessGenes` function, using the pre-saved mapping object for *Streptococcus pyogenes* MGAS5005 and the corresponding set of Prodigal-predicted genes.
+```{r message = FALSE}
+library(AssessORF)
+
+currMapObj <- readRDS(system.file("extdata",
+                                  "MGAS5005_PreSaved_DataMapObj.rds",
+                                  package = "AssessORF"))
+
+currProdigal <- readLines(system.file("extdata",
+                                      "MGAS5005_Prodigal.sco",
+                                      package = "AssessORF"))[-1:-2]
+
+prodigalLeft <- as.numeric(sapply(strsplit(currProdigal, "_", fixed=TRUE), `[`, 2L))
+prodigalRight <- as.numeric(sapply(strsplit(currProdigal, "_", fixed=TRUE), `[`, 3L))
+prodigalStrand <- sapply(strsplit(currProdigal, "_", fixed=TRUE), `[`, 4L)
+
+currResObj <- AssessGenes(geneLeftPos = prodigalLeft,
+                          geneRightPos = prodigalRight,
+                          geneStrand = prodigalStrand,
+                          inputMapObj = currMapObj,
+                          geneSource = "Prodigal",
+                          verbose = FALSE)
+```
+
+
+# Session Info
+
+All of the output in this vignette was produced under the following conditions:
+```{r echo = FALSE}
+print(sessionInfo(), locale = FALSE)
+```
+>>>>>>> master-holder
