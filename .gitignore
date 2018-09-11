@@ -1,0 +1,6 @@
+inst/doc
+*.rhistory
+*.rproj
+*.rbuildignore
+*.Rproj.user
+.Rproj.user
