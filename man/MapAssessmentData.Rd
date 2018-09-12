@@ -138,7 +138,7 @@ myMapObj <- MapAssessmentData(system.file("extdata",
                                           "Adenoviridae.sqlite",
                                           package = "AssessORF"),
                               central_ID = "1",
-                              related_IDs = as.character(2:53),
+                              related_IDs = as.character(2:26),
                               speciesName = "Human adenovirus 1",
                               useProt = FALSE)
 

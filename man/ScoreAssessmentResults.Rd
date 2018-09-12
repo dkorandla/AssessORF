@@ -12,8 +12,18 @@ ScoreAssessmentResults(x, mode = "a")
 \item{mode}{Must either be "a" (use all evidence), "p" (use proteomics evidence only),
 or "c" (use evolutionary conservation evidence only)}
 }
+\value{
+A numeric vector of length one containing the calculated accuracy-like score.
+}
 \description{
 Scores the results from the assessment of a set of genes using one of three modes
+}
+\details{
+\code{ScoreAssessmentResults} calculates an accuracy-like score for the categorization of genes within the
+given results object using the given mode of calculation. The accuracy score for a mode is equal to the number of
+genes that were categorized to be correct for that mode divided by the total number of genes that could have been
+categorized as correct for that mode (i.e. a count of the number of genes that had available and useable evidence for
+that particular mode).
 }
 \examples{
 
