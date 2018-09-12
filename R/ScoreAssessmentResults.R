@@ -8,6 +8,14 @@
 #' @param mode Must either be "a" (use all evidence), "p" (use proteomics evidence only),
 #' or "c" (use evolutionary conservation evidence only)
 #' 
+#' @details \code{ScoreAssessmentResults} calculates an accuracy-like score for the categorization of genes within the
+#' given results object using the given mode of calculation. The accuracy score for a mode is equal to the number of
+#' genes that were categorized to be correct for that mode divided by the total number of genes that could have been
+#' categorized as correct for that mode (i.e. a count of the number of genes that had available and useable evidence for
+#' that particular mode).
+#' 
+#' @return A numeric vector of length one containing the calculated accuracy-like score. 
+#' 
 #' @seealso \code{\link{Assessment-class}}
 #' 
 #' @examples
