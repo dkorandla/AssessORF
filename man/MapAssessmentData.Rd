@@ -132,7 +132,7 @@ myMapObj <- MapAssessmentData(myDBFile, central_ID = "1",
 ## Human adenovirus 1 is the strain of interest, and the set of Adenoviridae
 ## genomes will serve as the set of genome. The cenral genome, also known as
 ## the genome of human adenovirus 1, is at identifier 1. The related genomes
-## are at identifiers 2 - 105.
+## are at identifiers 2 - 26.
 
 myMapObj <- MapAssessmentData(system.file("extdata",
                                           "Adenoviridae.sqlite",

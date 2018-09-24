@@ -116,7 +116,7 @@ genomesFile <- system.file("extdata",
 ## used. The user should drop the '[1:26, ]' part if they plan on using this
 ## example as a starting point for putting sequences into a database.
 genomesTable <- read.csv(genomesFile, stringsAsFactors=FALSE)[1:26, ]
-ftps <- rGenomesTable$GenBank.FTP
+ftps <- genomesTable$GenBank.FTP
 ftps <- paste(ftps, paste0(basename(ftps), "_genomic.fna.gz"), sep="/")
 ftps <- ftps[which(substring(ftps, 1, 6)=="ftp://")]
 
@@ -156,7 +156,9 @@ In the example above, a set of Adenoviridae genomes from NCBI were used as the s
 
 The next example shows how to use the `MapAssessmentData` function with the SQL database (and database identifiers) generated in the previous example. Since there is no proteomics data in this instance, `useProt` will be set to `FALSE`.
 
-```{r message = FALSE}
+```{r results = FALSE}
+library(AssessORF)
+
 myMapObj <- MapAssessmentData(dbFile,
                               central_ID = "1",
                               related_IDs = identifiers[-1],
@@ -195,7 +197,7 @@ myMapObj <- MapAssessmentData(dbFile, ## File path to the SQL database containin
 
 Below is an example of how to use the `AssessGenes` function, using the pre-saved mapping object for *Streptococcus pyogenes* MGAS5005 and the corresponding set of Prodigal-predicted genes.
 
-```{r message = FALSE}
+```{r results = FALSE}
 library(AssessORF)
 
 currMapObj <- readRDS(system.file("extdata",
@@ -214,8 +216,7 @@ currResObj <- AssessGenes(geneLeftPos = prodigalLeft,
                           geneRightPos = prodigalRight,
                           geneStrand = prodigalStrand,
                           inputMapObj = currMapObj,
-                          geneSource = "Prodigal",
-                          verbose = FALSE)
+                          geneSource = "Prodigal")
 ```
 
 

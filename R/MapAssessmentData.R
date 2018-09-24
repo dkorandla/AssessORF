@@ -708,7 +708,7 @@ MapAssessmentData <- function(genomes_DBFile,
                                s[[iIdx * 2]][pos3],
                                sep = "")
         
-        crossGapCodons <- which((pos1 + 1L != pos2) | (pos2 + 1L = pos3))
+        crossGapCodons <- which((pos1 + 1L != pos2) | (pos2 + 1L != pos3))
         
         if (length(crossGapCodons) > 0) {
           centralCodons[crossGapCodons] <- NA_character_

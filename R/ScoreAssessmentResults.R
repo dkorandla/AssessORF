@@ -27,7 +27,7 @@
 #' ScoreAssessmentResults(readRDS(system.file("extdata", "MGAS5005_PreSaved_ResultsObj_Prodigal.rds", package = "AssessORF")), "p")
 #' 
 ScoreAssessmentResults <- function(x, mode = "a") {
-  if (!(is(inputMapObj, "Assessment") && is(inputMapObj, "Results"))) {
+  if (!(is(x, "Assessment") && is(x, "Results"))) {
     stop("'x' must be an object of class 'Assessment' and subclass 'Results'.")
   }
   
