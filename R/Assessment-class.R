@@ -181,44 +181,43 @@ print.Assessment <- function(x, ...) {
     
     ## --------------------------------------------------------------------------------------------------------------- ##
     
-    for (catIndex in seq_len(length(allCatSums))) {
-      currTot <- allCatSums[catIndex]
-      currCat <- names(allCatSums[catIndex])
-      
-      if (currCat %in% c("Y CS+ PE+")) {
-        printOut <- paste(printOut, currCat, " (correct with strong evidence): ",
-                          currTot, "\n", sep = "")
-        
-      } else if (currCat %in% c("Y CS+ PE-", "Y CS- PE+")) {
-        printOut <- paste(printOut, currCat, " (correct with some evidence): ",
-                          currTot, "\n", sep = "")
-        
-      } else if (currCat == "Y CS- PE-") {
-        printOut <- paste(printOut, currCat, " (no evidence): ",
-                          currTot, "\n", sep = "")
-        
-      } else if (currCat %in% c("Y CS! PE-", "Y CS< PE!")) {
-        printOut <- paste(printOut, currCat, " (definitely incorrect): ",
-                          currTot, "\n", sep = "")
-        
-      } else if (currCat == "Y CS- PE!") {
-        printOut <- paste(printOut, currCat, " (most likely incorrect): ",
-                          currTot, "\n", sep = "")
-        
-      } else if (currCat %in% c("Y CS> PE+", "Y CS> PE-", "Y CS< PE+", "Y CS< PE-")) {
-        printOut <- paste(printOut, currCat, " (likely incorrect): ",
-                          currTot, "\n", sep = "")
-        
-      } else if (currCat == "N CS< PE+") {
-        printOut <- paste(printOut, currCat, " (likely missing genes): ",
-                          currTot, "\n", sep = "")
-        
-      } else if (currCat == "N CS- PE+") {
-        printOut <- paste(printOut, currCat, " (potentially missing genes): ",
-                          currTot, "\n", sep = "")
-        
-      }
-    }
+    catIndex <- names(allCatSums) == "Y CS+ PE+"
+    printOut <- paste0(printOut, names(allCatSums[catIndex]),
+                       " (correct with strong evidence): ", allCatSums[catIndex], "\n")
+    
+    catIndex <- (names(allCatSums) == "Y CS+ PE-") | (names(allCatSums) == "Y CS- PE+")
+    printOut <- paste0(printOut, paste0(names(allCatSums[catIndex]),
+                                        " (correct with some evidence): ",
+                                        allCatSums[catIndex], "\n" , collapse = ""))
+    
+    catIndex <- names(allCatSums) == "Y CS- PE-"
+    printOut <- paste0(printOut, names(allCatSums[catIndex]),
+                       " (no evidence): ", allCatSums[catIndex], "\n" )
+    
+    catIndex <- (names(allCatSums) == "Y CS! PE-") | (names(allCatSums) == "Y CS< PE!")
+    printOut <- paste0(printOut, paste0(names(allCatSums[catIndex]),
+                                        " (definitely incorrect): ",
+                                        allCatSums[catIndex], "\n" , collapse = ""))
+    
+    catIndex <- names(allCatSums) == "Y CS- PE!"
+    printOut <- paste0(printOut, names(allCatSums[catIndex]),
+                       " (most likely incorrect): ", allCatSums[catIndex], "\n")
+    
+    catIndex <- (names(allCatSums) == "Y CS> PE+") | (names(allCatSums) == "Y CS> PE-") |
+      (names(allCatSums) == "Y CS< PE+") | (names(allCatSums) == "Y CS< PE-")
+    printOut <- paste0(printOut, paste0(names(allCatSums[catIndex]),
+                                        " (likely incorrect): ",
+                                        allCatSums[catIndex], "\n" , collapse = ""))
+    
+    catIndex <- names(allCatSums) == "N CS< PE+"
+    printOut <- paste0(printOut, names(allCatSums[catIndex]),
+                       " (likely missing genes): ", allCatSums[catIndex], "\n")
+    
+    catIndex <- names(allCatSums) == "N CS- PE+"
+    printOut <- paste0(printOut, names(allCatSums[catIndex]),
+                       " (potentially missing genes): ", allCatSums[catIndex], "\n")
+    
+    ## --------------------------------------------------------------------------------------------------------------- ##
     
     printOut <- paste(printOut, "\nNumber of Genes with Supporting Evidence: ",
                       sum(allCatSums[c("Y CS+ PE+", "Y CS+ PE-", "Y CS- PE+")]), sep = "")

@@ -130,7 +130,7 @@
 #' ## Human adenovirus 1 is the strain of interest, and the set of Adenoviridae
 #' ## genomes will serve as the set of genome. The cenral genome, also known as
 #' ## the genome of human adenovirus 1, is at identifier 1. The related genomes
-#' ## are at identifiers 2 - 105.
+#' ## are at identifiers 2 - 26.
 #' 
 #' myMapObj <- MapAssessmentData(system.file("extdata",
 #'                                           "Adenoviridae.sqlite",
@@ -238,8 +238,8 @@ MapAssessmentData <- function(genomes_DBFile,
         thresholdProt <- TRUE
         
         if (verbose) {
-          cat("'protHits_Scores' has distinct scores.",
-              "A threshold will be applied (if possible).\n")
+          message("'protHits_Scores' has distinct scores.",
+                  "A threshold will be applied (if possible).\n")
         }
       }
       
@@ -247,9 +247,9 @@ MapAssessmentData <- function(genomes_DBFile,
       ## 'protHits_Score' has a length of 1.
       
       if (verbose) {
-        cat("'protHits_Scores' has length of 1.",
-            "Assigning the same score to all proteomics hits.",
-            "No threshold will be applied.\n")
+        message("'protHits_Scores' has length of 1.",
+                "Assigning the same score to all proteomics hits.",
+                "No threshold will be applied.\n")
       }
       
       protHits_Scores <- rep(protHits_Scores, length(protHits_Seqs))
@@ -269,7 +269,7 @@ MapAssessmentData <- function(genomes_DBFile,
       if (protHits_Threshold == 0) {
         
         if (verbose) {
-          cat("'protHits_Threshold' is zero so it is not possible to apply a threshold.\n")
+          message("'protHits_Threshold' is zero so it is not possible to apply a threshold.\n")
         }
         
         thresholdProt <- FALSE
@@ -451,7 +451,7 @@ MapAssessmentData <- function(genomes_DBFile,
       scoreQuants <- quantile(protHits_Scores, quantProbs)
       names(scoreQuants) <- as.character(quantProbs)
       
-      threshold <- quantProbs[which(quantProbs <= (protHits_Threshold / 100))]
+      threshold <- quantProbs[(quantProbs <= (protHits_Threshold / 100))]
       threshold <- threshold[length(threshold)]
       
       protInds <- which(protHits_Scores > scoreQuants[as.character(threshold)])
@@ -460,7 +460,7 @@ MapAssessmentData <- function(genomes_DBFile,
       protHits_Seqs <- protHits_Seqs[protInds]
       
       if (verbose) {
-        cat(protHits_Threshold, "percentile threshold applied.\n")
+        message(protHits_Threshold, "percentile threshold applied.\n")
       }
     }
     
@@ -642,19 +642,17 @@ MapAssessmentData <- function(genomes_DBFile,
     
     ## Set up conservation and coverage vectors.
     
-    for (gPos in seq_len(genomeLen - 2)) {
-      fwdCodon <- as.character(subseq(fwdGenome, gPos, gPos + 2))
-      
-      if (fwdCodon %in% startCodons) {
-        fwdConStarts[gPos] <- 0L
-      }
-      
-      revCodon <- as.character(subseq(revGenome, gPos, gPos + 2))
-      
-      if (revCodon %in% startCodons) {
-        revConStarts[gPos] <- 0L
-      }
-    }
+    gPos <- seq_len(genomeLen - 2)
+    
+    fwdCodons <- as.character(unlist(extractAt(fwdGenome, IRanges(gPos, gPos + 2))))
+    
+    matchIdxFwd <- fwdCodons %in% startCodons
+    fwdConStarts[gPos[matchIdxFwd]] <- 0L
+    
+    revCodons <- as.character(unlist(extractAt(revGenome, IRanges(gPos, gPos + 2))))
+    
+    matchIdxRev <- revCodons %in% startCodons
+    revConStarts[gPos[matchIdxRev]] <- 0L
     
     stopCodons <- c("TAG", "TGA", "TAA")
     
@@ -709,6 +707,13 @@ MapAssessmentData <- function(genomes_DBFile,
                                s[[iIdx * 2]][pos2],
                                s[[iIdx * 2]][pos3],
                                sep = "")
+        
+        crossGapCodons <- which((pos1 + 1L != pos2) | (pos2 + 1L = pos3))
+        
+        if (length(crossGapCodons) > 0) {
+          centralCodons[crossGapCodons] <- NA_character_
+          relatedCodons[crossGapCodons] <- NA_character_
+        }
         
         ## Forward conserved starts
         identical <- which((centralCodons %in% startCodons) & (relatedCodons %in% startCodons))

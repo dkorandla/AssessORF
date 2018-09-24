@@ -43,13 +43,19 @@ In order to install the package, follow these steps:
 1. Install the latest version of R is installed using [CRAN](https://cran.r-project.org/).
 2. Install `AssessORF` in R by running the following commands:
 ```{r eval = FALSE}
-source("https://bioconductor.org/biocLite.R")
-biocLite("AssessORF")
+if (!requireNamespace("BiocManager", quietly = TRUE)){
+  install.packages("BiocManager")
+}
+
+BiocManager::install("AssessORF")
 ```
 3. Optionally, install the corresponding data package, `AssessORFData`, using the following commands:
 ```{r eval = FALSE}
-source("https://bioconductor.org/biocLite.R")
-biocLite("AssessORFData")
+if (!requireNamespace("BiocManager", quietly = TRUE)){
+  install.packages("BiocManager")
+}
+
+BiocManager::install("AssessORFData")
 ```
 
 # Getting the Data
@@ -74,65 +80,108 @@ There may also may be rare instances where there are too many genomes for a part
 
 After gathering the necessary data, it is time to prepare them for use with the mapping function. For the proteomics data, put the peptide sequence into one vector and their confidence scores (if available) into a second vector. The two vectors should have the same length and have the proteomics hits in the same order (i.e. the score for the xth sequence in the sequence vector is at index x in the score vector).
 
-The central genome and the related genomes must be put SQL database. In order to accomplish this, I recommend using the DECIPHER package. Sample code for putting the genomes into the database is provided below:
-```{r eval = FALSE}
+The central genome and the related genomes must be put SQL database. In order to accomplish this, I recommend using the DECIPHER package. The example below describes the process for putting genomes into the database in situations where NCBI's Genome Browser is used as the source for related genomes. Users are encouraged to adapt this workflow to suit their own needs.
+
+```{r message = FALSE}
 library(DECIPHER)
 
 ## Path to the SQL database file (will be created if necessary)
-## dbFile <- ""
+## In this example, a temporary file will be used, but it is recommended that
+## the user specify a file path they prefer to use as the location of the 
+## database instead.
+dbFile <- tempfile()
+## Here is what the alternate option would like:
+# dbFile <- "<insert file path to database here>"
 
-## Path to the genome file (in FASTA format)
-## genomeFile <- ""
-
-## Path to the related genome files (in this example it comes from NCBI's genome browser).
-## rGenomesFile <- ""
-
+## Connect to the database.
 dbConn <- dbConnect(SQLite(), dbFile)
 
-x <- read.csv(rGenomesFile, stringsAsFactors=FALSE)
+## Path to the file containing the links to the related genomes
+## In this example, the file comes from NCBI's genome browser site and is in
+## CSV format. If the user is also using a CSV file downloaded from NCBI's
+## genome browser site as the source for the related genomes links, the user
+## can replace the 'system.file' function call below with  the path to their
+## CSV file instead. The rest of this example assumes that the links are
+## provided in this format. For help on adding genome sequences provided in
+## other formats to a database, consult DECIPHER's manual and vignettes.
+genomesFile <- system.file("extdata",
+                           "AdenoviridaeGenomes.csv",
+                           package = "AssessORF")
+## Here is what the alternate option would like:
+# genomesFile <- "<insert path to CSV file here>"
 
-## Extract the FTP links from the CSV file and make sure they are in the right format.
-ftps <- x$GenBank.FTP
-ftps <- paste(ftps, paste0(sapply(strsplit(ftps, "/", fixed=TRUE), tail, n=1),
-              "_genomic.fna.gz"), sep="/")
+## Extract the FTP links from the CSV file and make sure they are in the right
+## format so they can be downloaded from the NCBI server. In order to minimize
+## the time spent running the example, only the first 26 rows of the table are
+## used. The user should drop the '[1:26, ]' part if they plan on using this
+## example as a starting point for putting sequences into a database.
+genomesTable <- read.csv(genomesFile, stringsAsFactors=FALSE)[1:26, ]
+ftps <- rGenomesTable$GenBank.FTP
+ftps <- paste(ftps, paste0(basename(ftps), "_genomic.fna.gz"), sep="/")
 ftps <- ftps[which(substring(ftps, 1, 6)=="ftp://")]
 
-## Add the file path to the central genome to the start of the vector of FTP links.
-ftps <- c(genomeFile, ftps)
-	
-l <- length(ftps)
+## In this example, the first genome in the table is the central genome.
+## In most user scenarios however, the path to the central genome will not be in
+## the related genomes file. The user should instead specify the path to the
+## file containing the sequence of the central genome (in FASTA format) and 
+## append that file path to the start of the vector containing the FTP links.
+## Here is what that would look like:
+# genomeFile <- "<insert file path to genome here>"
+# ftps <- c(genomeFile, ftps)
 
-## This vector will hold which genomes were succesfully added to the database
-pass <- logical(l)
+## This vector will hold which genomes were succesfully added to the database.
+pass <- logical(length(ftps))
 
 ## Add the sequences to the database.
-for (i in seq_len(l)) {
-	t <- try(Seqs2DB(ftps[i], "FASTA", dbConn, as.character(i),
-	                 compressRepeats=TRUE, verbose=FALSE), silent=TRUE)
-
-	if (!is(t, "try-error")) {
-		pass[i] <- TRUE
-	}
+for (pIdx in seq_along(pass)) {
+  t <- try(Seqs2DB(ftps[pIdx], "FASTA", dbConn, as.character(pIdx),
+                   compressRepeats=TRUE, verbose=FALSE), silent=TRUE)
+  
+  if (class(t) != "try-error") {
+    pass[pIdx] <- TRUE
+  }
 }
 
-## This vector contains the list of identifers of genomes in the database.
-## The first one, identifier "1", corresponds to the central genome.
-## The remaining identifers correspond to the related genomes.
-identifiers <- which(pass)
+## This vector contains the list of identifers for the genomes in the database,
+## based on which ones were successfully added. Identifers are character
+## strings. The first one, identifier "1", corresponds to the central genome.
+## The remaining identifers, in this case "2":"26", correspond to the related
+## genomes.
+identifiers <- as.character(which(pass))
 
 dbDisconnect(dbConn)
 ```
 
-Here's how to use the `MapAssessmentData` function (following from the previous code):
-```{r eval = FALSE}
-currMapObj <- MapAssessmentData(dbFile, ## File path to the SQL database containing the genomes
-                                central_ID = "1", ## Identifier for the central genome
-                                related_IDs = as.character(pass[-1]), ## Identifers for the related genomes
-                                protHits_Seqs = protSeqs, ## Sequences for the proteomics hits
-                                protHits_Scores = protScores, ## Confidence scores for the proteomics hits
-                                strainID = strain, ## The identifer for the strain
-                                speciesName = species) ## The name of the species
+In the example above, a set of Adenoviridae genomes from NCBI were used as the source for both the central genome and the related genomes. Human adenovirus 1 is the strain of interest here, and its genome serves the cenral genome (identifier 1). The remaining genomes in the set serve as the related genomes (indentifiers 2 - 26). Please note that package is not intended for uses with viruses. Viruses are used in some examples in the package because manipulations with viral genomes run much faster than those with prokaryotic genomes (due to viral genomes being much smaller in size).
+
+The next example shows how to use the `MapAssessmentData` function with the SQL database (and database identifiers) generated in the previous example. Since there is no proteomics data in this instance, `useProt` will be set to `FALSE`.
+
+```{r message = FALSE}
+myMapObj <- MapAssessmentData(dbFile,
+                              central_ID = "1",
+                              related_IDs = identifiers[-1],
+                              speciesName = "Human adenovirus 1",
+                              useProt = FALSE)
 ```
+
+```{r}
+## Remember to use 'unlink' to remove a database once it is no longer needed.
+unlink(dbFile)
+```
+
+The following code chunk shows a generalized call to the `MapAssessmentData` function, outlining which parameters users should specify when working with both evolutionary conservation data and proteomics data.
+
+```{r eval = FALSE}
+myMapObj <- MapAssessmentData(dbFile, ## File path to the SQL database containing the genomes
+                              central_ID = "1", ## Identifier for the central genome
+                              related_IDs = identifiers[-1], ## Identifers for the related genomes
+                              protHits_Seqs = protSeqs, ## Sequences for the proteomics hits
+                              protHits_Scores = protScores, ## Confidence scores for the proteomics hits
+                              strainID = strain, ## The identifer for the strain
+                              speciesName = species) ## The name of the species
+```
+
+
 
 # Generating the Results Object
 
@@ -145,6 +194,7 @@ currMapObj <- MapAssessmentData(dbFile, ## File path to the SQL database contain
 3. Use the 'AssessGenes' function with the mapping object and the set of predicted genes to generate the results object.
 
 Below is an example of how to use the `AssessGenes` function, using the pre-saved mapping object for *Streptococcus pyogenes* MGAS5005 and the corresponding set of Prodigal-predicted genes.
+
 ```{r message = FALSE}
 library(AssessORF)
 
@@ -172,6 +222,7 @@ currResObj <- AssessGenes(geneLeftPos = prodigalLeft,
 # Session Info
 
 All of the output in this vignette was produced under the following conditions:
+
 ```{r echo = FALSE}
 print(sessionInfo(), locale = FALSE)
 ```

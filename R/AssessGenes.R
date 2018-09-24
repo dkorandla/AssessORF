@@ -442,7 +442,7 @@ AssessGenes <- function(geneLeftPos,
       strandStarts <- geneLeftPos[strandOnly]
       names(strandStarts) <- as.character(strandOnly)
       
-      strandFrameStarts <- strandStarts[which(strandStarts %% 3 == shift)]
+      strandFrameStarts <- strandStarts[(strandStarts %% 3 == shift)]
       
     } else {
       strandID <- "-"
@@ -460,7 +460,7 @@ AssessGenes <- function(geneLeftPos,
       strandStarts <- genomeLength - geneRightPos[strandOnly] + 1
       names(strandStarts) <- as.character(strandOnly)
       
-      strandFrameStarts <- strandStarts[which(strandStarts %% 3 == shift)]
+      strandFrameStarts <- strandStarts[(strandStarts %% 3 == shift)]
     }
     
     ## In order to handle genes at the boundary of the genome, two additional
@@ -486,8 +486,8 @@ AssessGenes <- function(geneLeftPos,
       noProt <- TRUE
       
       ## Get the gene start(s) in that region.
-      regionalPredictedStart <-strandFrameStarts[which(strandFrameStarts >= orfStart
-                                                       & strandFrameStarts <= orfEnd)]
+      regionalPredictedStart <-strandFrameStarts[((strandFrameStarts >= orfStart) &
+                                                    (strandFrameStarts <= orfEnd))]
       geneIdx <- as.integer(names(regionalPredictedStart))
       
       if (length(regionalPredictedStart) > 1) {
@@ -534,7 +534,7 @@ AssessGenes <- function(geneLeftPos,
             
             ## Only the conserved starts upstream of the protein hits can be used as evidence.
             if (!noProt) {
-              conStarts <- allConservedStarts[which(allConservedStarts <= firstProteinHitStart)]
+              conStarts <- allConservedStarts[(allConservedStarts <= firstProteinHitStart)]
             } else {
               conStarts <- allConservedStarts
             }
