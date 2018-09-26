@@ -32,15 +32,21 @@ evolutionary conservation data, and gene set map to the central genome is plotte
 }
 \examples{
 
-plot(readRDS(system.file("extdata", "MGAS5005_PreSaved_DataMapObj.rds", package = "AssessORF")))
+currMapObj <- readRDS(system.file("extdata",
+"MGAS5005_PreSaved_DataMapObj.rds",
+package = "AssessORF"))
 
-plot(readRDS(system.file("extdata", "MGAS5005_PreSaved_ResultsObj_Prodigal.rds", package = "AssessORF")))
+currResObj <- readRDS(system.file("extdata",
+"MGAS5005_PreSaved_ResultsObj_Prodigal.rds",
+package = "AssessORF"))
 
-plot(readRDS(system.file("extdata", "MGAS5005_PreSaved_DataMapObj.rds", package = "AssessORF")),
-readRDS(system.file("extdata", "MGAS5005_PreSaved_ResultsObj_Prodigal.rds", package = "AssessORF")))
+plot(currMapObj)
 
-plot(readRDS(system.file("extdata", "MGAS5005_PreSaved_ResultsObj_Prodigal.rds", package = "AssessORF")),
-readRDS(system.file("extdata", "MGAS5005_PreSaved_DataMapObj.rds", package = "AssessORF")))
+plot(currResObj)
+
+plot(currMapObj, currResObj)
+
+plot(currResObj, currMapObj)
 
 }
 \seealso{

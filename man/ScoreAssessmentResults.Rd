@@ -27,11 +27,15 @@ that particular mode).
 }
 \examples{
 
-ScoreAssessmentResults(readRDS(system.file("extdata", "MGAS5005_PreSaved_ResultsObj_Prodigal.rds", package = "AssessORF")), "a")
+currResObj <- readRDS(system.file("extdata",
+"MGAS5005_PreSaved_ResultsObj_Prodigal.rds",
+package = "AssessORF"))
 
-ScoreAssessmentResults(readRDS(system.file("extdata", "MGAS5005_PreSaved_ResultsObj_Prodigal.rds", package = "AssessORF")), "c")
+ScoreAssessmentResults(currResObj, "a")
 
-ScoreAssessmentResults(readRDS(system.file("extdata", "MGAS5005_PreSaved_ResultsObj_Prodigal.rds", package = "AssessORF")), "p")
+ScoreAssessmentResults(currResObj, "c")
+
+ScoreAssessmentResults(currResObj, "p")
 
 }
 \seealso{

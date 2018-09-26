@@ -19,12 +19,14 @@ category codes serve as the column names, and the name of the row is the strain 
 The \code{as.matrix} method for \code{Assessment} and subclass \code{Results} objects
 }
 \details{
-If the number of genes for any the 12 main gene / ORF categories is zero, a count (of zero) will stil be included for
+If the number of genes for any the 12 main gene / ORF categories is zero, a count (of zero) will still be included for
 that category.
 }
 \examples{
 
-as.matrix(readRDS(system.file("extdata", "MGAS5005_PreSaved_ResultsObj_Prodigal.rds", package = "AssessORF")))
+as.matrix(readRDS(system.file("extdata",
+"MGAS5005_PreSaved_ResultsObj_Prodigal.rds",
+package = "AssessORF")))
 
 }
 \seealso{
