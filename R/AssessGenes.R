@@ -99,9 +99,13 @@
 #'
 #' ## Example from vignette is shown below
 #'
-#' currMapObj <- readRDS(system.file("extdata", "MGAS5005_PreSaved_DataMapObj.rds", package = "AssessORF"))
+#' currMapObj <- readRDS(system.file("extdata",
+#' "MGAS5005_PreSaved_DataMapObj.rds",
+#' package = "AssessORF"))
 #'
-#' currProdigal <- readLines(system.file("extdata", "MGAS5005_Prodigal.sco", package = "AssessORF"))[-1:-2]
+#' currProdigal <- readLines(system.file("extdata",
+#' "MGAS5005_Prodigal.sco",
+#' package = "AssessORF"))[-1:-2]
 #'
 #' prodigalLeft <- as.numeric(sapply(strsplit(currProdigal, "_", fixed=TRUE), `[`, 2L))
 #' prodigalRight <- as.numeric(sapply(strsplit(currProdigal, "_", fixed=TRUE), `[`, 3L))

@@ -8,7 +8,7 @@
 #' @param ... Additional arguments.
 #'
 #' @details
-#' If the number of genes for any the 12 main gene / ORF categories is zero, a count (of zero) will stil be included for
+#' If the number of genes for any the 12 main gene / ORF categories is zero, a count (of zero) will still be included for
 #' that category.
 #'
 #' @return A one-row matrix with the counts for the number of genes / ORFs that fall into each category. The corresponding
@@ -18,7 +18,9 @@
 #' 
 #' @examples
 #'
-#' as.matrix(readRDS(system.file("extdata", "MGAS5005_PreSaved_ResultsObj_Prodigal.rds", package = "AssessORF")))
+#' as.matrix(readRDS(system.file("extdata",
+#' "MGAS5005_PreSaved_ResultsObj_Prodigal.rds",
+#' package = "AssessORF")))
 #'
 as.matrix.Assessment <- function(x, ...) {
   if (class(x)[1] != "Assessment") {
@@ -95,8 +97,13 @@ as.matrix.Assessment <- function(x, ...) {
 #' 
 #' @examples
 #'
-#' print(readRDS(system.file("extdata", "MGAS5005_PreSaved_DataMapObj.rds", package = "AssessORF")))
-#' print(readRDS(system.file("extdata", "MGAS5005_PreSaved_ResultsObj_Prodigal.rds", package = "AssessORF")))
+#' print(readRDS(system.file("extdata",
+#' "MGAS5005_PreSaved_DataMapObj.rds",
+#' package = "AssessORF")))
+#' 
+#' print(readRDS(system.file("extdata",
+#' "MGAS5005_PreSaved_ResultsObj_Prodigal.rds",
+#' package = "AssessORF")))
 #'
 print.Assessment <- function(x, ...) {
   if (class(x)[1] != "Assessment") {
@@ -267,15 +274,21 @@ print.Assessment <- function(x, ...) {
 #' 
 #' @examples
 #'
-#' plot(readRDS(system.file("extdata", "MGAS5005_PreSaved_DataMapObj.rds", package = "AssessORF")))
+#' currMapObj <- readRDS(system.file("extdata",
+#' "MGAS5005_PreSaved_DataMapObj.rds",
+#' package = "AssessORF"))
 #' 
-#' plot(readRDS(system.file("extdata", "MGAS5005_PreSaved_ResultsObj_Prodigal.rds", package = "AssessORF")))
+#' currResObj <- readRDS(system.file("extdata",
+#' "MGAS5005_PreSaved_ResultsObj_Prodigal.rds",
+#' package = "AssessORF"))
+#'
+#' plot(currMapObj)
 #' 
-#' plot(readRDS(system.file("extdata", "MGAS5005_PreSaved_DataMapObj.rds", package = "AssessORF")),
-#' readRDS(system.file("extdata", "MGAS5005_PreSaved_ResultsObj_Prodigal.rds", package = "AssessORF")))
+#' plot(currResObj)
 #' 
-#' plot(readRDS(system.file("extdata", "MGAS5005_PreSaved_ResultsObj_Prodigal.rds", package = "AssessORF")),
-#' readRDS(system.file("extdata", "MGAS5005_PreSaved_DataMapObj.rds", package = "AssessORF")))
+#' plot(currMapObj, currResObj)
+#' 
+#' plot(currResObj, currMapObj)
 #'
 plot.Assessment <- function(x, y = NULL,
                             related_MinConStart = 0.8, ...) {
@@ -433,7 +446,9 @@ plot.Assessment <- function(x, y = NULL,
 #' 
 #' @examples
 #'
-#' mosaicplot(readRDS(system.file("extdata", "MGAS5005_PreSaved_ResultsObj_Prodigal.rds", package = "AssessORF")))
+#' mosaicplot(readRDS(system.file("extdata",
+#' "MGAS5005_PreSaved_ResultsObj_Prodigal.rds",
+#' package = "AssessORF")))
 #'
 mosaicplot.Assessment <- function(x, ...) {
   if (class(x)[1] != "Assessment") {
