@@ -50,10 +50,10 @@ Must be a non-negative integer less than 100.}
 Default value is false.}
 
 \item{related_KMerLen}{The k-mer length to be used when measuring distances between the central genome and related genomes.
-Default value is 8.}
+Default value is 8. Recommended to use the default value.}
 
 \item{related_MinDist}{The minimum fractional distance required for a related genome to be used in finding
-evolutionary conservation. Default value is 0.01.}
+evolutionary conservation. Default value is 0.01. Recommended to use the default value.}
 
 \item{related_MaxDistantN}{The maximum number of related genomes to use in finding evolutionary conservation after the
 related genomes have been sorted from most distantly related to most closely related in relation to the central genome.

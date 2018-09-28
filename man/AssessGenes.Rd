@@ -10,11 +10,13 @@ geneRightPos,
 geneStrand,
 inputMapObj,
 geneSource = "",
-minCov = 10,
+minCovNum = 10,
+minCovPct = 5,
 minConCovRatio_Best = 0.99,
 limConCovRatio_NotCon = 0.8,
 minConCovRatio_Stop = 0.7,
 noConStopsGeneFrac = 0.5,
+minNumStops = 2,
 minMissORFLen = 0,
 allowNestedORFs = FALSE,
 useNTermProt = FALSE,
@@ -32,7 +34,11 @@ corresponding to the strain identifier for one of such objects from \code{Assess
 
 \item{geneSource}{Optional character string that describes the source of the gene set, i.e. a database or gene prediction program}
 
-\item{minCov}{Minimum number of related genomes required to have synteny to a position in the central genome.}
+\item{minCovNum}{Minimum number of related genomes required to have synteny to a position in the central genome.
+Recommended to use the default value.}
+
+\item{minCovPct}{Minimum percentage of related genomes required to have synteny to a position in the central genome.
+Recommended to use the default value.}
 
 \item{minConCovRatio_Best}{Minimum value of the start codon conservation to coverage ratio needed to call a start conserved.
 Must range from 0 to 1. Lower values allow more conserved starts through. Recommended to use the default value.}
@@ -50,6 +56,9 @@ gene and moving towards the stop of gene, to use in searching for conserved stop
 quarter of the gene is checked for conserved stops, a value of 0.5 correspond to the first half of the gene, etc. Recommended to use
 the default value.}
 
+\item{minNumStops}{Minimum number of conserved stop positions required to be within a gene (with no mapped proteomics hits)
+in order to categorize that gene as an overprediction. Recommended to use the default value.}
+
 \item{minMissORFLen}{Minimum ORF length required to include an ORF with protein hits but no gene start in the final results.}
 
 \item{allowNestedORFs}{Logical indicating whether or not to include ORFs with protein hits but no gene starts that are
@@ -65,8 +74,8 @@ Default value is FALSE.}
 An object of class \code{Assessment} and subclass \code{Results}
 }
 \description{
-Assess and categorize a set of genes for a genome using proteomics hits and evolutionarily conserved starts
-as evidence
+Assess and categorize a set of genes for a genome using proteomics hits, evolutionarily conserved starts,
+and evolutionary conserved stops as evidence
 }
 \details{
 The vectors \code{geneLeftPos}, \code{geneRightPos}, and \code{geneStrand} must all be of the same length. Using the same
@@ -83,10 +92,12 @@ corresponding element in \code{geneRightPos}.
 Please ensure that the same genome that is used in the mapping function is also used to derive the set of genes for this
 assessment function. The function will only error if any gene positions are outside the bounds of the genome.
 
-Each of the given genes is assigned a category based on where the conserved starts and proteomics evidence is located in
-relation to the start of the gene. Additionaly, open reading frames with proteomics evidence but no gene start are
-categorized based on whether or not there is a conserved start upstream of the proteomic evidence. The lengths of these
-open reading frames is included in the final object that is returned. Please see \code{\link{Assessment-class}} for a list of
+Each of the given genes is assigned a category based on where the conserved starts, conserved stops and proteomics evidence
+is located in relation to the start of the gene. The maximum of either \code{minCovNum} or \code{minCovPct} multiplied by the
+number of related genomes is used as the minimum coverage required in determining conserved starts and stops. Additionaly,
+open reading frames with proteomics evidence but no gene start are categorized based on whether or not there is a conserved
+start upstream of the proteomic evidence. The lengths of these open reading frames is included in the final object that is
+returned. Please see \code{\link{Assessment-class}} for a list of
 all possible categories and their descriptions.
 }
 \examples{
