@@ -50,10 +50,10 @@
 #' Default value is false.
 #'
 #' @param related_KMerLen The k-mer length to be used when measuring distances between the central genome and related genomes.
-#' Default value is 8.
+#' Default value is 8. Recommended to use the default value.
 #' 
 #' @param related_MinDist The minimum fractional distance required for a related genome to be used in finding
-#' evolutionary conservation. Default value is 0.01.
+#' evolutionary conservation. Default value is 0.01. Recommended to use the default value.
 #'
 #' @param related_MaxDistantN The maximum number of related genomes to use in finding evolutionary conservation after the
 #' related genomes have been sorted from most distantly related to most closely related in relation to the central genome.
@@ -671,17 +671,16 @@ MapAssessmentData <- function(genomes_DBFile,
       
       synteny <- FindSynteny(genomes_DBFile,
                              identifier = c(central_ID, validRelated_IDs[rIdx]),
+                             sepCost = -1e-3, gapCost = -1e-2,
+                             maxSep = 500, maxGap = 200,
+                             minScore = 40, dropScore = 0,
                              verbose = FALSE)
       
       dna <- AlignSynteny(synteny,
                           genomes_DBFile,
                           verbose = FALSE)
       
-      dna <- unlist(dna[[1]])
-      
-      dna <- as.character(dna)
-      
-      s <- strsplit(dna, "", fixed=TRUE)
+      s <- strsplit(as.character(unlist(dna[[1]])), "", fixed=TRUE)
       
       for (iIdx in seq_len(length(s)/2)) {
         w <- synteny[2,1][[1]][iIdx, "start1"]:synteny[2,1][[1]][iIdx, "end1"]
