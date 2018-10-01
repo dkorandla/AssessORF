@@ -86,12 +86,12 @@
 #' assessment function. The function will only error if any gene positions are outside the bounds of the genome.
 #'
 #' Each of the given genes is assigned a category based on where the conserved starts, conserved stops and proteomics evidence
-#' is located in relation to the start of the gene. The maximum of either \code{minCovNum} or \code{minCovPct} multiplied by the
-#' number of related genomes is used as the minimum coverage required in determining conserved starts and stops. Additionaly,
-#' open reading frames with proteomics evidence but no gene start are categorized based on whether or not there is a conserved
-#' start upstream of the proteomic evidence. The lengths of these open reading frames is included in the final object that is
-#' returned. Please see \code{\link{Assessment-class}} for a list of
-#' all possible categories and their descriptions.
+#' is located in relation to the start of the gene. The maximum of either \code{minCovNum} or (\code{minCovPct} / 100)
+#' multiplied by the number of related genomes is used as the minimum coverage required in determining conserved starts and
+#' stops. Additionaly, open reading frames with proteomics evidence but no gene start are categorized based on whether or not
+#' there is a conserved start upstream of the proteomic evidence. The lengths of these open reading frames is included in the
+#' final object that is returned. Please see \code{\link{Assessment-class}} for a list of all possible categories and their
+#' descriptions.
 #'
 #' @return An object of class \code{Assessment} and subclass \code{Results}
 #' 
@@ -137,7 +137,7 @@ AssessGenes <- function(geneLeftPos,
                         minCovPct = 5L,
                         minConCovRatio_Best = 0.99,
                         limConCovRatio_NotCon = 0.8,
-                        minConCovRatio_Stop = 0.7,
+                        minConCovRatio_Stop = 0.5,
                         noConStopsGeneFrac = 0.5,
                         minNumStops = 2L,
                         minMissORFLen = 0L,
@@ -371,7 +371,7 @@ AssessGenes <- function(geneLeftPos,
   }
   
   if (useCons) {
-    minCov <- max(minCovNum, minCovPct * mapObj$NumRelatedGenomes)
+    minCov <- max(minCovNum, minCovPct * mapObj$NumRelatedGenomes / 100)
   }
   
   ## --------------------------------------------------------------------------------------------------------------- ##
