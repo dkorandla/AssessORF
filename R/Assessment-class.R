@@ -8,8 +8,9 @@
 #' @param ... Additional arguments.
 #'
 #' @details
-#' If the number of genes for any the 12 main gene / ORF categories is zero, a count (of zero) will still be included for
-#' that category.
+#' \code{as.matrix.Assessment} tabulates and returns the number of times each category appears in the \code{CategoryAssignments}
+#' vector within the given \code{Results} object. If the number of genes for any the 12 main gene / ORF categories is zero, a
+#' count (of zero) will still be included for that category.
 #'
 #' @return A one-row matrix with the counts for the number of genes / ORFs that fall into each category. The corresponding
 #' category codes serve as the column names, and the name of the row is the strain ID.
@@ -19,8 +20,8 @@
 #' @examples
 #'
 #' as.matrix(readRDS(system.file("extdata",
-#' "MGAS5005_PreSaved_ResultsObj_Prodigal.rds",
-#' package = "AssessORF")))
+#'                               "MGAS5005_PreSaved_ResultsObj_Prodigal.rds",
+#'                               package = "AssessORF")))
 #'
 as.matrix.Assessment <- function(x, ...) {
   if (class(x)[1] != "Assessment") {
@@ -58,10 +59,10 @@ as.matrix.Assessment <- function(x, ...) {
     ## Get the number of genes in each category.
     catSumTable <- table(x$CategoryAssignments)
     
-    allCatSums <- integer(13L)
+    allCatSums <- integer(14L)
     
     names(allCatSums) <- c("Y CS+ PE+", "Y CS+ PE-", "Y CS- PE+", "Y CS- PE-",
-                           "Y CS! PE-", "Y CS< PE!", "Y CS- PE!",
+                           "Y CS< PE!", "Y CS- PE!", "Y CS! PE+", "Y CS! PE-",
                            "Y CS> PE+", "Y CS> PE-", "Y CS< PE+", "Y CS< PE-",
                            "N CS< PE+", "N CS- PE+")
     
@@ -90,20 +91,20 @@ as.matrix.Assessment <- function(x, ...) {
 #' If \code{x} is of subclass \code{DataMap}, the length of the genome is printed along with any supplied identifying
 #' information for the genome.
 #'
-#' If \code{x} is of subclass \code{Results}, the number of genes in each category is printed out along with the accuracy
-#' score of the gene set.
+#' If \code{x} is of subclass \code{Results}, the number of genes in each category and the accuracy scores are printed out
+#' along with any supplied identifying information.
 #'
 #' @seealso \code{\link{Assessment-class}}
 #' 
 #' @examples
 #'
 #' print(readRDS(system.file("extdata",
-#' "MGAS5005_PreSaved_DataMapObj.rds",
-#' package = "AssessORF")))
+#'                           "MGAS5005_PreSaved_DataMapObj.rds",
+#'                           package = "AssessORF")))
 #' 
 #' print(readRDS(system.file("extdata",
-#' "MGAS5005_PreSaved_ResultsObj_Prodigal.rds",
-#' package = "AssessORF")))
+#'                           "MGAS5005_PreSaved_ResultsObj_Prodigal.rds",
+#'                           package = "AssessORF")))
 #'
 print.Assessment <- function(x, ...) {
   if (class(x)[1] != "Assessment") {
@@ -164,10 +165,10 @@ print.Assessment <- function(x, ...) {
     ## Get the number of genes in each category.
     catSumTable <- table(x$CategoryAssignments)
     
-    allCatSums <- integer(13L)
+    allCatSums <- integer(14L)
     
     names(allCatSums) <- c("Y CS+ PE+", "Y CS+ PE-", "Y CS- PE+", "Y CS- PE-",
-                           "Y CS! PE-", "Y CS< PE!", "Y CS- PE!",
+                           "Y CS< PE!", "Y CS- PE!", "Y CS! PE+", "Y CS! PE-",
                            "Y CS> PE+", "Y CS> PE-", "Y CS< PE+", "Y CS< PE-",
                            "N CS< PE+", "N CS- PE+")
     
@@ -178,13 +179,16 @@ print.Assessment <- function(x, ...) {
     ## --------------------------------------------------------------------------------------------------------------- ##
     
     printOut <- paste(printOut, "Score Using All Evidence: ",
-                      round(ScoreAssessmentResults(x), 6), "\n", sep = "")
+                      round(ScoreAssessmentResults(x), 4), "\n", sep = "")
     
     printOut <- paste(printOut, "Score Using Only Proteomic Evidence: ",
-                      round(ScoreAssessmentResults(x, "p"), 6), "\n", sep = "")
+                      round(ScoreAssessmentResults(x, "p"), 4), "\n", sep = "")
     
     printOut <- paste(printOut, "Score Using Only Conserved Start Evidence: ",
-                      round(ScoreAssessmentResults(x, "c"), 6), "\n\n", sep = "")
+                      round(ScoreAssessmentResults(x, "c"), 4), "\n", sep = "")
+    
+    printOut <- paste(printOut, "Score Using All Evidence With Weights: ",
+                      round(ScoreAssessmentResults(x, "w"), 4), "\n\n", sep = "")
     
     ## --------------------------------------------------------------------------------------------------------------- ##
     
@@ -201,19 +205,20 @@ print.Assessment <- function(x, ...) {
     printOut <- paste0(printOut, names(allCatSums[catIndex]),
                        " (no evidence): ", allCatSums[catIndex], "\n" )
     
-    catIndex <- (names(allCatSums) == "Y CS! PE-") | (names(allCatSums) == "Y CS< PE!")
-    printOut <- paste0(printOut, paste0(names(allCatSums[catIndex]),
-                                        " (definitely incorrect): ",
-                                        allCatSums[catIndex], "\n" , collapse = ""))
-    
-    catIndex <- names(allCatSums) == "Y CS- PE!"
+    catIndex <- names(allCatSums) == "Y CS< PE!"
     printOut <- paste0(printOut, names(allCatSums[catIndex]),
-                       " (most likely incorrect): ", allCatSums[catIndex], "\n")
+                       " (definitely incorrect): ", allCatSums[catIndex], "\n")
+    
+    catIndex <- (names(allCatSums) == "Y CS- PE!") | (names(allCatSums) == "Y CS! PE+") |
+      (names(allCatSums) == "Y CS! PE-")
+    printOut <- paste0(printOut, paste0(names(allCatSums[catIndex]),
+                                        " (likely incorrect): ",
+                                        allCatSums[catIndex], "\n" , collapse = ""))
     
     catIndex <- (names(allCatSums) == "Y CS> PE+") | (names(allCatSums) == "Y CS> PE-") |
       (names(allCatSums) == "Y CS< PE+") | (names(allCatSums) == "Y CS< PE-")
     printOut <- paste0(printOut, paste0(names(allCatSums[catIndex]),
-                                        " (likely incorrect): ",
+                                        " (potentially incorrect): ",
                                         allCatSums[catIndex], "\n" , collapse = ""))
     
     catIndex <- names(allCatSums) == "N CS< PE+"
@@ -231,7 +236,8 @@ print.Assessment <- function(x, ...) {
     
     printOut <- paste(printOut, "\nNumber of Genes with Contradictory Evidence: ",
                       sum(allCatSums[c("Y CS> PE+", "Y CS> PE-", "Y CS< PE+", "Y CS< PE-",
-                                       "Y CS! PE-", "Y CS< PE!", "Y CS- PE!")]), sep = "")
+                                       "Y CS! PE+", "Y CS! PE-", "Y CS< PE!", "Y CS- PE!")]),
+                      sep = "")
     
     printOut <- paste(printOut, "\nNumber of ORFs with Protein Evidence and No Given Start: ",
                       sum(allCatSums[c("N CS< PE+", "N CS- PE+")]), "\n", sep = "")
@@ -255,8 +261,8 @@ print.Assessment <- function(x, ...) {
 #' @param y An optional object of class \code{Assessment} and of either subclass \code{DataMap} or subclass \code{Results}. Its
 #' subclass must be different than the subclass of \code{x}
 #'
-#' @param related_MinConStart Minimum value of the conservation to coverage ratio needed to call a start conserved. Must range from
-#' 0 to 1. Lower values allow more conserved starts through. Recommended to use default value.
+#' @param related_MinConStart Minimum value of the conservation to coverage ratio needed to call a start conserved. Must range
+#' from 0 to 1. Lower values allow more conserved starts through. Recommended to use default value.
 #'
 #' @param ... Further plotting parameters.
 #'
@@ -275,12 +281,12 @@ print.Assessment <- function(x, ...) {
 #' @examples
 #'
 #' currMapObj <- readRDS(system.file("extdata",
-#' "MGAS5005_PreSaved_DataMapObj.rds",
-#' package = "AssessORF"))
+#'                                   "MGAS5005_PreSaved_DataMapObj.rds",
+#'                                   package = "AssessORF"))
 #' 
 #' currResObj <- readRDS(system.file("extdata",
-#' "MGAS5005_PreSaved_ResultsObj_Prodigal.rds",
-#' package = "AssessORF"))
+#'                                   "MGAS5005_PreSaved_ResultsObj_Prodigal.rds",
+#'                                   package = "AssessORF"))
 #'
 #' plot(currMapObj)
 #' 
@@ -364,7 +370,9 @@ plot.Assessment <- function(x, y = NULL,
     ## Get the number of genes in each category
     catSumTable <- table(x$CategoryAssignments)
     
-    nonCollapseIdxs <- which((names(catSumTable) != "Y CS> PE+") &
+    nonCollapseIdxs <- which((names(catSumTable) != "Y CS! PE+") &
+                               (names(catSumTable) != "Y CS! PE-") &
+                               (names(catSumTable) != "Y CS> PE+") &
                                (names(catSumTable) != "Y CS> PE-") &
                                (names(catSumTable) != "Y CS< PE+") &
                                (names(catSumTable) != "Y CS< PE-"))
@@ -372,11 +380,14 @@ plot.Assessment <- function(x, y = NULL,
     allCatSums <- integer(11L)
     
     names(allCatSums) <-  c("Y CS+ PE+", "Y CS+ PE-", "Y CS- PE+", "Y CS- PE-",
-                            "Y CS! PE-", "Y CS< PE!", "Y CS- PE!",
+                            "Y CS< PE!", "Y CS- PE!", "Y CS! PE\u00B1",
                             "Y CS> PE\u00B1", "Y CS< PE\u00B1",
                             "N CS< PE+", "N CS- PE+")
     
     allCatSums[names(catSumTable)[nonCollapseIdxs]] <- catSumTable[nonCollapseIdxs]
+    
+    allCatSums["Y CS! PE\u00B1"] <- sum(catSumTable[which((names(catSumTable) == "Y CS! PE+") |
+                                                            (names(catSumTable) == "Y CS! PE-"))], na.rm = TRUE)
     
     allCatSums["Y CS> PE\u00B1"] <- sum(catSumTable[which((names(catSumTable) == "Y CS> PE+") |
                                                             (names(catSumTable) == "Y CS> PE-"))], na.rm = TRUE)
@@ -402,7 +413,7 @@ plot.Assessment <- function(x, y = NULL,
     ## --------------------------------------------------------------------------------------------------------------- ##
     
     catColors <- c("darkgreen", "lightgreen", "lightgreen", "white",
-                   "darkred", "darkred", "indianred1",
+                   "darkred", "indianred1", "indianred1",
                    "gray", "gray",
                    "darkblue", "lightblue", "darkred")
     
@@ -417,7 +428,7 @@ plot.Assessment <- function(x, y = NULL,
     legend(x = ceiling(par("usr")[1]), y = 1.2 * currYMax, bty = "n", ncol = 3, xpd = TRUE,
            fill = c("darkgreen", "lightgreen", "white", "darkred", "indianred1", "gray", "darkblue", "lightblue"),
            legend = c("Definitely Correct", "Likely Correct", "No Evidence",
-                      "Definitely Incorrect", "Most Likely Incorrect", "Likely Incorrect",
+                      "Definitely Incorrect", "Likely Incorrect", "Potentially Incorrect",
                       "Likely Missing", "Potentially Missing"))
     
   } else {
@@ -438,17 +449,20 @@ plot.Assessment <- function(x, y = NULL,
 #' @param ... Further \code{mosaicplot} parameters.
 #'
 #' @details
-#' Genes and open reading frames with proteomics evidence but no gene starts are separated into ten quantile bins based on the
-#' length of the gene / open reading frame. The genes are then plotted by length bin and category in a mosaic format, with each
-#' column representing a length bin and each row / block representing a category.
+#' \code{mosaicplot.Assessment} plots all the genes in the given \code{Results} object by category and length. This set of genes
+#' includes both the supplied predicted genes as well as open reading frames with proteomics evidence but no predicted start.
+#' 
+#' The set of genes are separated into ten quantile bins based on the length of the gene / open reading frame. The genes are then
+#' plotted by length bin and category in a mosaic format, with each column representing a length bin and each row / block
+#' representing a category.
 #'
 #' @seealso \code{\link{Assessment-class}}
 #' 
 #' @examples
 #'
 #' mosaicplot(readRDS(system.file("extdata",
-#' "MGAS5005_PreSaved_ResultsObj_Prodigal.rds",
-#' package = "AssessORF")))
+#'                                "MGAS5005_PreSaved_ResultsObj_Prodigal.rds",
+#'                                package = "AssessORF")))
 #'
 mosaicplot.Assessment <- function(x, ...) {
   if (class(x)[1] != "Assessment") {
@@ -503,12 +517,12 @@ mosaicplot.Assessment <- function(x, ...) {
     catByLenTable <- table(cut(geneLengths, quantBins), names(geneLengths))
     
     catCodeNames <- c("Y CS+ PE+", "Y CS+ PE-", "Y CS- PE+", "Y CS- PE-",
-                      "Y CS! PE-", "Y CS< PE!", "Y CS- PE!",
+                      "Y CS< PE!", "Y CS- PE!", "Y CS! PE+", "Y CS! PE-",
                       "Y CS> PE+", "Y CS> PE-", "Y CS< PE+", "Y CS< PE-",
                       "N CS< PE+", "N CS- PE+", "Y CS> PE!")
     
     catColors <- c("darkgreen", "lightgreen", "lightgreen", "white",
-                   "darkred", "darkred", "indianred1",
+                   "darkred", "indianred1", "indianred1", "indianred1",
                    "gray", "gray", "gray", "gray",
                    "darkblue", "lightblue", "darkred")
     

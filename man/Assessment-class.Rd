@@ -73,7 +73,8 @@ forms of evidence to determine the evidence for each gene in a given set.
     \item{\code{Y CS+ PE-}}{There is a good conserved start aligned with the gene start without protein evidence downstream.}
     \item{\code{Y CS- PE+}}{There is no good conserved start aligned with the predicted start, and there is protein evidence downstream of the gene start.}
     \item{\code{Y CS- PE-}}{There is no good conserved start aligned with the predicted start, and there is no protein evidence downstream of the gene start.}
-    \item{\code{Y CS! PE-}}{There is a good conserved stop in the middle of the gene, and there is no protein evidence downstream of the gene start.}
+    \item{\code{Y CS! PE-}}{There are either multiple good conserved stops in the middle of the gene, or the most downstream, good conserved stop is followed by a good conserved start. There is no protein evidence downstream of the gene start}
+    \item{\code{Y CS! PE+}}{The most downstream, good conserved stop is followed by a good conserved start, and there is protein evidence downstream of the gene start.}
     \item{\code{Y CS< PE!}}{The protein evidence disagrees with / is upstream of the gene start, and there is a good conserved start upstream of the protein evidence.}
     \item{\code{Y CS- PE!}}{The protein evidence disagrees with / is upstream of the gene start, and there is no good conserved start upstream of the protein evidence.}
     \item{\code{Y CS> PE+}}{The best conserved starts are downstream of the predicted start, and there is protein evidence downstream of the gene start.}

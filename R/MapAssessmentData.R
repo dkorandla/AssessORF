@@ -5,24 +5,23 @@
 #' @description Maps proteomics hits and evolutionarily conserved starts to a central genome
 #'
 #' @usage
-#' MapAssessmentData(
-#' genomes_DBFile,
-#' tblName = "Seqs",
-#' central_ID,
-#' related_IDs,
-#' protHits_Seqs,
-#' protHits_Scores = rep.int(1, length(protHits_Seqs)),
-#' strainID = "",
-#' speciesName = "",
-#' protHits_Threshold = 0,
-#' protHits_IsNTerm = FALSE,
-#' related_KMerLen = 8,
-#' related_MinDist = 0.01,
-#' related_MaxDistantN = 1000,
-#' startCodons = c("ATG", "GTG", "TTG"),
-#' useProt = TRUE,
-#' useCons = TRUE,
-#' verbose = TRUE)
+#' MapAssessmentData(genomes_DBFile,
+#'                   tblName = "Seqs",
+#'                   central_ID,
+#'                   related_IDs,
+#'                   protHits_Seqs,
+#'                   protHits_Scores = rep.int(1, length(protHits_Seqs)),
+#'                   strainID = "",
+#'                   speciesName = "",
+#'                   protHits_Threshold = 0,
+#'                   protHits_IsNTerm = FALSE,
+#'                   related_KMerLen = 8,
+#'                   related_MinDist = 0.01,
+#'                   related_MaxDistantN = 1000,
+#'                   startCodons = c("ATG", "GTG", "TTG"),
+#'                   useProt = TRUE,
+#'                   useCons = TRUE,
+#'                   verbose = TRUE)
 #'
 #' @param genomes_DBFile A SQLite connection object or a character string specifying the path to the database file.
 #'
@@ -71,6 +70,10 @@
 #' @param verbose Logical indicating whether or not to display progress and status messages.
 #'
 #' @details
+#' \code{MapAssessmentData} maps the given data (either proteomics data, evolutionary conservation data, or both) to the
+#' given central genome and stores those mappings in the object outputted by the function. The object that is outputted can
+#' then be used to assess the quality of genes predicted for that same central genome.
+#' 
 #' All genomes used inside this function, including the central genome, must be inside the specified table of the specified
 #' database. If the central genome is not found, the function returns an error. Please see the Using AssessORF vignette
 #' for details on how to populate a database with genomic sequences.
@@ -238,7 +241,7 @@ MapAssessmentData <- function(genomes_DBFile,
         thresholdProt <- TRUE
         
         if (verbose) {
-          message("'protHits_Scores' has distinct scores.",
+          message("'protHits_Scores' has distinct scores. ",
                   "A threshold will be applied (if possible).\n")
         }
       }
@@ -247,8 +250,8 @@ MapAssessmentData <- function(genomes_DBFile,
       ## 'protHits_Score' has a length of 1.
       
       if (verbose) {
-        message("'protHits_Scores' has length of 1.",
-                "Assigning the same score to all proteomics hits.",
+        message("'protHits_Scores' has length of 1. ",
+                "Assigning the same score to all proteomics hits. ",
                 "No threshold will be applied.\n")
       }
       
@@ -460,7 +463,7 @@ MapAssessmentData <- function(genomes_DBFile,
       protHits_Seqs <- protHits_Seqs[protInds]
       
       if (verbose) {
-        message(protHits_Threshold, "percentile threshold applied.\n")
+        message(protHits_Threshold, " percentile threshold applied.\n")
       }
     }
     
