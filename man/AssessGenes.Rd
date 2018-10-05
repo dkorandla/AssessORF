@@ -4,23 +4,22 @@
 \alias{AssessGenes}
 \title{Assess Genes}
 \usage{
-AssessGenes(
-geneLeftPos,
-geneRightPos,
-geneStrand,
-inputMapObj,
-geneSource = "",
-minCovNum = 10,
-minCovPct = 5,
-minConCovRatio_Best = 0.99,
-limConCovRatio_NotCon = 0.8,
-minConCovRatio_Stop = 0.7,
-noConStopsGeneFrac = 0.5,
-minNumStops = 2,
-minMissORFLen = 0,
-allowNestedORFs = FALSE,
-useNTermProt = FALSE,
-verbose = TRUE)
+AssessGenes(geneLeftPos,
+            geneRightPos,
+            geneStrand,
+            inputMapObj,
+            geneSource = "",
+            minCovNum = 10,
+            minCovPct = 5,
+            minConCovRatio_Best = 0.99,
+            limConCovRatio_NotCon = 0.8,
+            minConCovRatio_Stop = 0.5,
+            noConStopsGeneFrac = 0.5,
+            minNumStops = 2,
+            minMissORFLen = 0,
+            allowNestedORFs = FALSE,
+            useNTermProt = FALSE,
+            verbose = TRUE)
 }
 \arguments{
 \item{geneLeftPos}{An integer vector with the left positions of each gene, in terms of the forward strand.}
@@ -32,13 +31,14 @@ verbose = TRUE)
 \item{inputMapObj}{EITHER an object of class \code{Assessment} and subclass \code{DataMap} OR a character string
 corresponding to the strain identifier for one of such objects from \code{AssessORFData}.}
 
-\item{geneSource}{Optional character string that describes the source of the gene set, i.e. a database or gene prediction program}
+\item{geneSource}{Optional character string that describes the source of the gene set, i.e. a database or gene prediction
+program. Used when viewing and identifying the object returned by the function.}
 
 \item{minCovNum}{Minimum number of related genomes required to have synteny to a position in the central genome.
 Recommended to use the default value.}
 
 \item{minCovPct}{Minimum percentage of related genomes required to have synteny to a position in the central genome.
-Recommended to use the default value.}
+Must be an integer ranging from 0 to 100. Recommended to use the default value.}
 
 \item{minConCovRatio_Best}{Minimum value of the start codon conservation to coverage ratio needed to call a start conserved.
 Must range from 0 to 1. Lower values allow more conserved starts through. Recommended to use the default value.}
@@ -75,9 +75,15 @@ An object of class \code{Assessment} and subclass \code{Results}
 }
 \description{
 Assess and categorize a set of genes for a genome using proteomics hits, evolutionarily conserved starts,
-and evolutionary conserved stops as evidence
+and evolutionarily conserved stops as evidence
 }
 \details{
+For each of the given genes, \code{AssessGene} assigns a category based on where the conserved starts, conserved stops, and
+proteomics hits are located in relation to the start of the gene. The category assignments for the genes are stored in the
+\code{CategoryAssignments} vector in the \code{Results} object returned by the function. This vector has the same length as
+and aligns with the indexing of the three given gene positional information vectors. Please see
+\code{\link{Assessment-class}} for a list of all possible categories and their descriptions.
+
 The vectors \code{geneLeftPos}, \code{geneRightPos}, and \code{geneStrand} must all be of the same length. Using the same
 index with each vector must provide information on the same gene (think of the vectors as columns of the same table).
 
@@ -92,21 +98,22 @@ corresponding element in \code{geneRightPos}.
 Please ensure that the same genome that is used in the mapping function is also used to derive the set of genes for this
 assessment function. The function will only error if any gene positions are outside the bounds of the genome.
 
-Each of the given genes is assigned a category based on where the conserved starts, conserved stops and proteomics evidence
-is located in relation to the start of the gene. The maximum of either \code{minCovNum} or (\code{minCovPct} / 100)
-multiplied by the number of related genomes is used as the minimum coverage required in determining conserved starts and
-stops. Additionaly, open reading frames with proteomics evidence but no gene start are categorized based on whether or not
-there is a conserved start upstream of the proteomic evidence. The lengths of these open reading frames is included in the
-final object that is returned. Please see \code{\link{Assessment-class}} for a list of all possible categories and their
-descriptions.
+The maximum of either \code{minCovNum} or (\code{minCovPct} / 100) multiplied by the number of related genomes is used as
+the minimum coverage required in determining conserved starts and stops.
+
+Additionaly, open reading frames with proteomics evidence but no gene start are categorized based on whether or not there
+is a conserved start upstream of the proteomic evidence. The positions and lengths of these open reading frames is included
+in the \code{N_CS-_PE+_ORFs} and \code{N_CS+_PE+_ORFs} matrices within the final object that is returned.
 }
 \examples{
 
 ## Example showing the minimum number of arguments that need to be specified:
 
 \dontrun{
-myResObj <- AssessGenes(geneLeftPos = myGenesLeft,geneRightPos = myGenesRight,
-                        geneStrand = myGenesStrand, inputMapObj = myMapObj)
+myResObj <- AssessGenes(geneLeftPos = myGenesLeft,
+                        geneRightPos = myGenesRight,
+                        geneStrand = myGenesStrand,
+                        inputMapObj = myMapObj)
 }
 
 
@@ -114,22 +121,22 @@ myResObj <- AssessGenes(geneLeftPos = myGenesLeft,geneRightPos = myGenesRight,
 ## Example from vignette is shown below
 
 currMapObj <- readRDS(system.file("extdata",
-"MGAS5005_PreSaved_DataMapObj.rds",
-package = "AssessORF"))
+                                  "MGAS5005_PreSaved_DataMapObj.rds",
+                                  package = "AssessORF"))
 
 currProdigal <- readLines(system.file("extdata",
-"MGAS5005_Prodigal.sco",
-package = "AssessORF"))[-1:-2]
+                                      "MGAS5005_Prodigal.sco",
+                                      package = "AssessORF"))[-1:-2]
 
 prodigalLeft <- as.numeric(sapply(strsplit(currProdigal, "_", fixed=TRUE), `[`, 2L))
 prodigalRight <- as.numeric(sapply(strsplit(currProdigal, "_", fixed=TRUE), `[`, 3L))
 prodigalStrand <- sapply(strsplit(currProdigal, "_", fixed=TRUE), `[`, 4L)
 
 currResObj <- AssessGenes(geneLeftPos = prodigalLeft,
-geneRightPos = prodigalRight,
-geneStrand = prodigalStrand,
-inputMapObj = currMapObj,
-geneSource = "Prodigal")
+                          geneRightPos = prodigalRight,
+                          geneStrand = prodigalStrand,
+                          inputMapObj = currMapObj,
+                          geneSource = "Prodigal")
 
 }
 \seealso{

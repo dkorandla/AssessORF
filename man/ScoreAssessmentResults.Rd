@@ -7,10 +7,10 @@
 ScoreAssessmentResults(x, mode = "a")
 }
 \arguments{
-\item{x}{An object of class \code{Assessment} and subclass \code{Results}}
+\item{x}{An object of class \code{Assessment} and subclass \code{Results}.}
 
 \item{mode}{Must either be "a" (use all evidence), "p" (use proteomics evidence only),
-or "c" (use evolutionary conservation evidence only)}
+"c" (use evolutionary conservation evidence only), or "w" (use all evidence but with weights).}
 }
 \value{
 A numeric vector of length one containing the calculated accuracy-like score.
@@ -19,17 +19,24 @@ A numeric vector of length one containing the calculated accuracy-like score.
 Scores the results from the assessment of a set of genes using one of three modes
 }
 \details{
-\code{ScoreAssessmentResults} calculates an accuracy-like score for the categorization of genes within the
-given results object using the given mode of calculation. The accuracy score for a mode is equal to the number of
-genes that were categorized to be correct for that mode divided by the total number of genes that could have been
-categorized as correct for that mode (i.e. a count of the number of genes that had available and useable evidence for
-that particular mode).
+\code{ScoreAssessmentResults} calculates an accuracy-like score for the categorization of genes within the given
+\code{Results} object using the given mode of calculation. The accuracy score for a mode is equal to the number of genes
+that were categorized to be correct for that mode divided by the total number of genes that could have been categorized
+as correct for that mode (i.e. a count of the number of genes that had available and useable evidence for that particular
+mode).
+
+Open reading frames with proteomics evidence but no predicted start are included in the total gene count when calculating
+the accuracy score for the proteomics mode and for both all evidence modes.
+
+In the weighted, all evidence mode, weights for each category are determined by the number of types of evidence that are
+supporting or against genes in the category. Counts are multiplied by their corresponding weight, and the maximum value for
+a weight is 2.
 }
 \examples{
 
 currResObj <- readRDS(system.file("extdata",
-"MGAS5005_PreSaved_ResultsObj_Prodigal.rds",
-package = "AssessORF"))
+                                  "MGAS5005_PreSaved_ResultsObj_Prodigal.rds",
+                                  package = "AssessORF"))
 
 ScoreAssessmentResults(currResObj, "a")
 

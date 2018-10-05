@@ -18,18 +18,18 @@ The \code{print} method for \code{Assessment} objects
 If \code{x} is of subclass \code{DataMap}, the length of the genome is printed along with any supplied identifying
 information for the genome.
 
-If \code{x} is of subclass \code{Results}, the number of genes in each category is printed out along with the accuracy
-score of the gene set.
+If \code{x} is of subclass \code{Results}, the number of genes in each category and the accuracy scores are printed out
+along with any supplied identifying information.
 }
 \examples{
 
 print(readRDS(system.file("extdata",
-"MGAS5005_PreSaved_DataMapObj.rds",
-package = "AssessORF")))
+                          "MGAS5005_PreSaved_DataMapObj.rds",
+                          package = "AssessORF")))
 
 print(readRDS(system.file("extdata",
-"MGAS5005_PreSaved_ResultsObj_Prodigal.rds",
-package = "AssessORF")))
+                          "MGAS5005_PreSaved_ResultsObj_Prodigal.rds",
+                          package = "AssessORF")))
 
 }
 \seealso{

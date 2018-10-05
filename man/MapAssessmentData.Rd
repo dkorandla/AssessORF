@@ -4,24 +4,23 @@
 \alias{MapAssessmentData}
 \title{Map Evidence to a Genome}
 \usage{
-MapAssessmentData(
-genomes_DBFile,
-tblName = "Seqs",
-central_ID,
-related_IDs,
-protHits_Seqs,
-protHits_Scores = rep.int(1, length(protHits_Seqs)),
-strainID = "",
-speciesName = "",
-protHits_Threshold = 0,
-protHits_IsNTerm = FALSE,
-related_KMerLen = 8,
-related_MinDist = 0.01,
-related_MaxDistantN = 1000,
-startCodons = c("ATG", "GTG", "TTG"),
-useProt = TRUE,
-useCons = TRUE,
-verbose = TRUE)
+MapAssessmentData(genomes_DBFile,
+                  tblName = "Seqs",
+                  central_ID,
+                  related_IDs,
+                  protHits_Seqs,
+                  protHits_Scores = rep.int(1, length(protHits_Seqs)),
+                  strainID = "",
+                  speciesName = "",
+                  protHits_Threshold = 0,
+                  protHits_IsNTerm = FALSE,
+                  related_KMerLen = 8,
+                  related_MinDist = 0.01,
+                  related_MaxDistantN = 1000,
+                  startCodons = c("ATG", "GTG", "TTG"),
+                  useProt = TRUE,
+                  useCons = TRUE,
+                  verbose = TRUE)
 }
 \arguments{
 \item{genomes_DBFile}{A SQLite connection object or a character string specifying the path to the database file.}
@@ -77,6 +76,10 @@ An object of class \code{Assessment} and subclass \code{DataMap}
 Maps proteomics hits and evolutionarily conserved starts to a central genome
 }
 \details{
+\code{MapAssessmentData} maps the given data (either proteomics data, evolutionary conservation data, or both) to the
+given central genome and stores those mappings in the object outputted by the function. The object that is outputted can
+then be used to assess the quality of genes predicted for that same central genome.
+
 All genomes used inside this function, including the central genome, must be inside the specified table of the specified
 database. If the central genome is not found, the function returns an error. Please see the Using AssessORF vignette
 for details on how to populate a database with genomic sequences.

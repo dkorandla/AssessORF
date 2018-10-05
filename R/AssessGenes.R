@@ -151,6 +151,7 @@ AssessGenes <- function(geneLeftPos,
                         allowNestedORFs = FALSE,
                         useNTermProt = FALSE,
                         verbose = TRUE) {
+  
   ## Check inputs for error.
   
   if ((!is.logical(verbose)) ||(anyNA(verbose)) || (length(verbose) != 1)) {
@@ -643,9 +644,9 @@ AssessGenes <- function(geneLeftPos,
             ## Get the most downstream conserved stop to check if there is a conserved start downstream.
             mostDownstreamStop <- max(validConStops)
             
-            multiStops <- (length(validConStops) >= minNumStops)
+            multiStops <- length(validConStops) >= minNumStops
             
-            conStopConStart <- (any(mostDownstreamStop < conStarts[bestConStartIdxs]))
+            conStopConStart <- (!noConStarts) & (any(mostDownstreamStop < conStarts[bestConStartIdxs]))
             
             ## If there is no protein evidence and either there are (multiple) valid conserved stops or there is
             ## a strong conserved start downstream of the stops, put the gene in the conserved stop category.

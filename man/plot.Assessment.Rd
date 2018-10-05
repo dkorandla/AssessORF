@@ -12,8 +12,8 @@
 \item{y}{An optional object of class \code{Assessment} and of either subclass \code{DataMap} or subclass \code{Results}. Its
 subclass must be different than the subclass of \code{x}}
 
-\item{related_MinConStart}{Minimum value of the conservation to coverage ratio needed to call a start conserved. Must range from
-0 to 1. Lower values allow more conserved starts through. Recommended to use default value.}
+\item{related_MinConStart}{Minimum value of the conservation to coverage ratio needed to call a start conserved. Must range
+from 0 to 1. Lower values allow more conserved starts through. Recommended to use default value.}
 
 \item{...}{Further plotting parameters.}
 }
@@ -33,12 +33,12 @@ evolutionary conservation data, and gene set map to the central genome is plotte
 \examples{
 
 currMapObj <- readRDS(system.file("extdata",
-"MGAS5005_PreSaved_DataMapObj.rds",
-package = "AssessORF"))
+                                  "MGAS5005_PreSaved_DataMapObj.rds",
+                                  package = "AssessORF"))
 
 currResObj <- readRDS(system.file("extdata",
-"MGAS5005_PreSaved_ResultsObj_Prodigal.rds",
-package = "AssessORF"))
+                                  "MGAS5005_PreSaved_ResultsObj_Prodigal.rds",
+                                  package = "AssessORF"))
 
 plot(currMapObj)
 

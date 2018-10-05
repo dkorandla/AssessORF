@@ -15,15 +15,18 @@
 The \code{mosaicplot} method for \code{Assessment} object
 }
 \details{
-Genes and open reading frames with proteomics evidence but no gene starts are separated into ten quantile bins based on the
-length of the gene / open reading frame. The genes are then plotted by length bin and category in a mosaic format, with each
-column representing a length bin and each row / block representing a category.
+\code{mosaicplot.Assessment} plots all the genes in the given \code{Results} object by category and length. This set of genes
+includes both the supplied predicted genes as well as open reading frames with proteomics evidence but no predicted start.
+
+The set of genes are separated into ten quantile bins based on the length of the gene / open reading frame. The genes are then
+plotted by length bin and category in a mosaic format, with each column representing a length bin and each row / block
+representing a category.
 }
 \examples{
 
 mosaicplot(readRDS(system.file("extdata",
-"MGAS5005_PreSaved_ResultsObj_Prodigal.rds",
-package = "AssessORF")))
+                               "MGAS5005_PreSaved_ResultsObj_Prodigal.rds",
+                               package = "AssessORF")))
 
 }
 \seealso{
