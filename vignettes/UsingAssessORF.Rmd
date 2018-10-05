@@ -43,7 +43,7 @@ The next couple of sections will describe how to use `AssessORF` from putting to
 
 In order to install the package, follow these steps:
 
-1. Install the latest version of R is installed using [CRAN](https://cran.r-project.org/).
+1. Install the latest version of R using [CRAN](https://cran.r-project.org/).
 2. Install `AssessORF` in R by running the following commands:
 ```{r eval = FALSE}
 if (!requireNamespace("BiocManager", quietly = TRUE)){
