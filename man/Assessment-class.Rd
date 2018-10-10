@@ -39,7 +39,7 @@ forms of evidence to determine the evidence for each gene in a given set.
 
 \section{\code{Results} Objects}{
   Objects of class \code{Assessment} and subclass \code{Results} are used to store how correct a set of genes for a given genome.
-  The function \code{\link{AssessGenes}} generates \code{Results} using a \code{DataMap} object and information on set of genes
+  The function \code{\link{AssessGenes}} generates \code{Results} using a \code{DataMap} object and information on a set of genes
   for the genome corresponding to the \code{DataMap} object. \code{Results} objects have a list structure containing the following
   elements:
   
@@ -75,8 +75,8 @@ forms of evidence to determine the evidence for each gene in a given set.
     \item{\code{Y CS- PE-}}{There is no good conserved start aligned with the predicted start, and there is no protein evidence downstream of the gene start.}
     \item{\code{Y CS! PE-}}{There are either multiple good conserved stops in the middle of the gene, or the most downstream, good conserved stop is followed by a good conserved start. There is no protein evidence downstream of the gene start}
     \item{\code{Y CS! PE+}}{The most downstream, good conserved stop is followed by a good conserved start, and there is protein evidence downstream of the gene start.}
-    \item{\code{Y CS< PE!}}{The protein evidence disagrees with / is upstream of the gene start, and there is a good conserved start upstream of the protein evidence.}
-    \item{\code{Y CS- PE!}}{The protein evidence disagrees with / is upstream of the gene start, and there is no good conserved start upstream of the protein evidence.}
+    \item{\code{Y CS< PE!}}{The protein evidence disagrees with/is upstream of the gene start, and there is a good conserved start upstream of the protein evidence.}
+    \item{\code{Y CS- PE!}}{The protein evidence disagrees with/is upstream of the gene start, and there is no good conserved start upstream of the protein evidence.}
     \item{\code{Y CS> PE+}}{The best conserved starts are downstream of the predicted start, and there is protein evidence downstream of the gene start.}
     \item{\code{Y CS> PE-}}{The best conserved starts are downstream of the predicted start, and there is no protein evidence downstream of the gene start.}
     \item{\code{Y CS< PE+}}{At least one of the best conserved starts is upstream of the predicted start, and there is protein evidence downstream of the gene start.}

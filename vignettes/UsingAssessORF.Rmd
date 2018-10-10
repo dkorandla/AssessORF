@@ -17,7 +17,7 @@ In genomics pipelines, a newly sequenced genome must be annotated before it can 
 
 ## Why Proteomics?
 
-One of the direct products of a gene are proteins, so mapping real protein fragments back to the corresponding genome can provide a rough guide as to where the genes are within a genome. In other words, aligning protein sequences to a genome can prove which genes from a set of predicted genes are definitively real as well as show which genes have starts that do not agree with the protein evidence. Protein evidence contradicts a gene start specifically when there are protein hits in the same open reading frame (ORF) that are directly upstream of or overlapping the start. Additionally, protein evidence to ORFs without a predicted gene can point towards the existence of potential genes missed by the gene finding program. The data from proteomics experiments focused on sequencing the complete set of proteins of an organism is thus highly useful in the assessing the quality of set of predicted genes for that organism.
+One of the direct products of a gene are proteins, so mapping real protein fragments back to the corresponding genome can provide a rough guide as to where the genes are within a genome. In other words, aligning protein sequences to a genome can prove which genes from a set of predicted genes are definitively real as well as show which genes have starts that do not agree with the protein evidence. Protein evidence contradicts a gene start specifically when there are protein hits in the same open reading frame (ORF) that are directly upstream of or overlapping the start. Additionally, protein evidence to ORFs without a predicted gene can point towards the existence of potential genes missed by the gene finding program. The data from proteomics experiments focused on sequencing the complete set of proteins of an organism is thus highly useful in assessing the quality of a set of predicted genes for that organism.
 
 ## Why Evolutionary Conservation?
 
@@ -27,7 +27,8 @@ The conservation of stop codons across genomes can provide information about the
 
 # Package Structure
 
-Assessing the quality of a set of computationally-derived, *ab initio* gene predictions for a genome requires external data to be aligned to that genome before judgments on quality can be made. `AssessORF` follows this methodology, and once that external data has been acquired and set up (see the "Getting the Data" section below), usage of the package typically happens in two steps:  
+Assessing the quality of a set of computationally-derived, *ab initio* gene predictions for a genome requires external data to be aligned to that genome before judgments on quality can be made. `AssessORF` follows this methodology, and once external data has been acquired and set up (see the "Getting the Data" section below), usage of the package typically happens in two steps:
+
 1. Map and align the provided evidence, which can either be proteomics data, evolutionary conservation data, or both, back to the central genome.  
 2. Add in gene predictions for that central genome and categorize how much evidence there is supporting or against each gene in that set.  
 
@@ -157,7 +158,7 @@ identifiers <- as.character(which(pass))
 dbDisconnect(dbConn)
 ```
 
-In the example above, a set of Adenoviridae genomes from NCBI were used as the source for both the central genome and the related genomes. Human adenovirus 1 is the strain of interest here, and its genome serves the central genome (identifier 1). The remaining genomes in the set serve as the related genomes (identifiers 2 - 26). Please note that package is only intended to be used with prokaryotes. Viruses are used in some examples in the package because manipulations with viral genomes run much faster than those with prokaryotic genomes (due to viral genomes being much smaller in size).
+In the example above, a set of Adenoviridae genomes from NCBI was used as the source for both the central genome and the related genomes. Human adenovirus 1 is the strain of interest here, and its genome serves the central genome (identifier 1). The remaining genomes in the set serve as the related genomes (identifiers 2 - 26). Please note that the package is only intended to be used with prokaryotes. Viruses are used in some examples in the package because manipulations with viral genomes run much faster than those with prokaryotic genomes (due to viral genomes being much smaller in size).
 
 The next example shows how to use the `MapAssessmentData` function with the SQL database (and database identifiers) generated in the previous example. Since there is no proteomics data in this instance, `useProt` will be set to `FALSE`.
 

@@ -12,7 +12,7 @@
 #' vector within the given \code{Results} object. If the number of genes for any the 12 main gene / ORF categories is zero, a
 #' count (of zero) will still be included for that category.
 #'
-#' @return A one-row matrix with the counts for the number of genes / ORFs that fall into each category. The corresponding
+#' @return A one-row matrix with the counts for the number of genes/ORFs that fall into each category. The corresponding
 #' category codes serve as the column names, and the name of the row is the strain ID.
 #'
 #' @seealso \code{\link{Assessment-class}}
@@ -452,8 +452,8 @@ plot.Assessment <- function(x, y = NULL,
 #' \code{mosaicplot.Assessment} plots all the genes in the given \code{Results} object by category and length. This set of genes
 #' includes both the supplied predicted genes as well as open reading frames with proteomics evidence but no predicted start.
 #' 
-#' The set of genes are separated into ten quantile bins based on the length of the gene / open reading frame. The genes are then
-#' plotted by length bin and category in a mosaic format, with each column representing a length bin and each row / block
+#' The set of genes are separated into ten quantile bins based on the length of the gene/open reading frame. The genes are then
+#' plotted by length bin and category in a mosaic format, with each column representing a length bin and each row/block
 #' representing a category.
 #'
 #' @seealso \code{\link{Assessment-class}}

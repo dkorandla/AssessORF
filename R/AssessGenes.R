@@ -52,9 +52,9 @@
 #' through. Recommended to use the default value.
 #' 
 #' @param noConStopsGeneFrac Value from 0 to 1 describing the fractional range of positions in a gene, starting from the start of the
-#' gene and moving towards the stop of gene, to use in searching for conserved stops. For example, a value of 0.25 means that the first
-#' quarter of the gene is checked for conserved stops, a value of 0.5 correspond to the first half of the gene, etc. Recommended to use
-#' the default value.
+#' gene and moving towards the stop of the gene, to use in searching for conserved stops. For example, a value of 0.25 means that the
+#' first quarter of the gene is checked for conserved stops, a value of 0.5 correspond to the first half of the gene, etc. Recommended
+#' to use the default value.
 #' 
 #' @param minNumStops Minimum number of conserved stop positions required to be within a gene (with no mapped proteomics hits)
 #' in order to categorize that gene as an overprediction. Recommended to use the default value.
@@ -88,10 +88,10 @@
 #' reverse strand). This means that none of the elements of \code{geneLeftPos} can be greater than (or equal to) the
 #' corresponding element in \code{geneRightPos}.
 #'
-#' Please ensure that the same genome that is used in the mapping function is also used to derive the set of genes for this
+#' Please ensure that the same genome used in the mapping function is also used to derive the set of genes for this
 #' assessment function. The function will only error if any gene positions are outside the bounds of the genome.
 #'
-#' The maximum of either \code{minCovNum} or (\code{minCovPct} / 100) multiplied by the number of related genomes is used as
+#' The maximum of either \code{minCovNum} or (\code{minCovPct}/100) multiplied by the number of related genomes is used as
 #' the minimum coverage required in determining conserved starts and stops.
 #' 
 #' Additionaly, open reading frames with proteomics evidence but no gene start are categorized based on whether or not there
