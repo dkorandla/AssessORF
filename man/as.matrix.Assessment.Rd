@@ -12,7 +12,7 @@
 \item{...}{Additional arguments.}
 }
 \value{
-A one-row matrix with the counts for the number of genes / ORFs that fall into each category. The corresponding
+A one-row matrix with the counts for the number of genes/ORFs that fall into each category. The corresponding
 category codes serve as the column names, and the name of the row is the strain ID.
 }
 \description{
