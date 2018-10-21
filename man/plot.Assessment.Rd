@@ -17,6 +17,9 @@ from 0 to 1. Lower values allow more conserved starts through. Recommended to us
 
 \item{...}{Further plotting parameters.}
 }
+\value{
+Invisibly returns the input object \code{x}
+}
 \description{
 The \code{plot} method for \code{Assessment} objects
 }

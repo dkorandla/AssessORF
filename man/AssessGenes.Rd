@@ -5,8 +5,8 @@
 \title{Assess Genes}
 \usage{
 AssessGenes(geneLeftPos,
-            geneRightPos,
-            geneStrand,
+            geneRightPos = NA_integer_,
+            geneStrand = NA_character_,
             inputMapObj,
             geneSource = "",
             minCovNum = 10,
@@ -22,11 +22,15 @@ AssessGenes(geneLeftPos,
             verbose = TRUE)
 }
 \arguments{
-\item{geneLeftPos}{An integer vector with the left positions of each gene, in terms of the forward strand.}
+\item{geneLeftPos}{An integer vector with the left positions of each gene, in terms of the forward strand.
+Can also be a \code{GRanges} object from the \code{GenomicRanges} package that holds all of the positional
+information (including strand) for the genes. In that case, the next two parameters should be left as NA.}
 
-\item{geneRightPos}{An integer vector with the right positions of each gene, in terms of the forward strand.}
+\item{geneRightPos}{An integer vector with the right positions of each gene, in terms of the forward strand.
+Should be left at the default value of \code{NA_integer_} if \code{geneLeftPos} is a GRanges object.}
 
-\item{geneStrand}{A character vector consisting of "+" and "-", specifying which strand each gene is on.}
+\item{geneStrand}{A character vector consisting of "+" and "-", specifying which strand each gene is on.
+Should be left at the default value of \code{NA_character_} if \code{geneLeftPos} is a GRanges object.}
 
 \item{inputMapObj}{EITHER an object of class \code{Assessment} and subclass \code{DataMap} OR a character string
 corresponding to the strain identifier for one of such objects from \code{AssessORFData}.}
@@ -80,20 +84,24 @@ and evolutionarily conserved stops as evidence
 \details{
 For each of the given genes, \code{AssessGene} assigns a category based on where the conserved starts, conserved stops, and
 proteomics hits are located in relation to the start of the gene. The category assignments for the genes are stored in the
-\code{CategoryAssignments} vector in the \code{Results} object returned by the function. This vector has the same length as
-and aligns with the indexing of the three given gene positional information vectors. Please see
+\code{CategoryAssignments} vector in the \code{Results} object returned by the function. Please see
 \code{\link{Assessment-class}} for a list of all possible categories and their descriptions.
 
-The vectors \code{geneLeftPos}, \code{geneRightPos}, and \code{geneStrand} must all be of the same length. Using the same
-index with each vector must provide information on the same gene (think of the vectors as columns of the same table).
+If \code{geneLeftPos} is a \code{GRanges} object, then the left and right positions of each gene along with the strand of each
+gene are extracted from the object. Any sequence names given for the genes within the \code{GRanges} object are ignored, and
+the \code{CategoryAssignments} in the returned \code{Results} object follows the same order as to how the genes are listed
+within the \code{GRanges} object.
 
-\code{geneLeftPos} and \code{geneRightPos} describe the upstream and downstream positions (respectively) for each gene in
-terms of the forward strand. For genes on the forward strand, \code{geneLeftPos} corresponds to the start positions and
-\code{geneRightPos} corresponds to stop positions. For genes on the reverse strand, \code{geneLeftPos} corresponds to the
-stop positions and \code{geneRightPos} corresponds to the start positions. Gene positions on the reverse strand must be
-relative to the 5' to 3' direction of the forward strand (as opposed to being relative to the 5' to 3' direction of the
-reverse strand). This means that none of the elements of \code{geneLeftPos} can be greater than (or equal to) the
-corresponding element in \code{geneRightPos}.
+If gene positional information is instead given as three vectors, then the three vectors, \code{geneLeftPos}, \code{geneRightPos},
+and \code{geneStrand}, must all be of the same length. Using the same index with each vector must provide information on the same
+gene (think of the vectors as columns of the same table). \code{geneLeftPos} and \code{geneRightPos} describe the upstream and
+downstream positions (respectively) for each gene in terms of the forward strand. For genes on the forward strand, \code{geneLeftPos}
+corresponds to the start positions and \code{geneRightPos} corresponds to stop positions. For genes on the reverse strand,
+\code{geneLeftPos} corresponds to the stop positions and \code{geneRightPos} corresponds to the start positions. Gene positions on the
+reverse strand must be relative to the 5' to 3' direction of the forward strand (as opposed to being relative to the 5' to 3' direction
+of the reverse strand). This means that none of the elements of \code{geneLeftPos} can be greater than (or equal to) the corresponding
+element in \code{geneRightPos}. The \code{CategoryAssignments} in the returned \code{Results} object has the same length as and aligns
+with the indexing of the three given gene positional information vectors. 
 
 Please ensure that the same genome used in the mapping function is also used to derive the set of genes for this
 assessment function. The function will only error if any gene positions are outside the bounds of the genome.

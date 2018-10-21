@@ -11,6 +11,9 @@
 
 \item{...}{Further \code{mosaicplot} parameters.}
 }
+\value{
+Invisibly returns the input object \code{x}
+}
 \description{
 The \code{mosaicplot} method for \code{Assessment} object
 }
