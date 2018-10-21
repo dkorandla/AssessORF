@@ -254,8 +254,7 @@ print.Assessment <- function(x, ...) {
 }
 
 #' @export
-#' @importFrom graphics rgb
-#' @importFrom grDevices gray
+#' @importFrom grDevices rgb gray
 #'
 #' @title Plot Assessment Objects
 #' @description The \code{plot} method for \code{Assessment} objects
