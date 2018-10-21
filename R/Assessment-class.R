@@ -1,4 +1,6 @@
 #' @export
+#' 
+#' @method as.matrix.Assessment
 #'
 #' @title Tabulate the Category Assignments for Assessment Results Objects
 #' @description The \code{as.matrix} method for \code{Assessment} and subclass \code{Results} objects
