@@ -1,5 +1,4 @@
 #' @export
-#' @import base
 #'
 #' @title Tabulate the Category Assignments for Assessment Results Objects
 #' @description The \code{as.matrix} method for \code{Assessment} and subclass \code{Results} objects
@@ -80,7 +79,6 @@ as.matrix.Assessment <- function(x, ...) {
 }
 
 #' @export
-#' @import base
 #'
 #' @title Print Assessment Objects
 #' @description The \code{print} method for \code{Assessment} objects
@@ -256,7 +254,6 @@ print.Assessment <- function(x, ...) {
 }
 
 #' @export
-#' @importFrom grDevices rgb gray
 #'
 #' @title Plot Assessment Objects
 #' @description The \code{plot} method for \code{Assessment} objects
@@ -446,8 +443,6 @@ plot.Assessment <- function(x, y = NULL,
 }
 
 #' @export
-#' @importFrom graphics mosaicplot
-#' @importFrom stats quantile
 #'
 #' @title Plot Genes by Category and Length
 #' @description The \code{mosaicplot} method for \code{Assessment} object
