@@ -1,4 +1,7 @@
 #' @export
+#' @import GenomicRanges
+#' @importFrom methods is
+#' @importFrom utils installed.packages txtProgressBar setTxtProgressBar
 #'
 #' @title Assess Genes
 #' @description Assess and categorize a set of genes for a genome using proteomics hits, evolutionarily conserved starts,
@@ -6,8 +9,8 @@
 #'
 #' @usage
 #' AssessGenes(geneLeftPos,
-#'             geneRightPos,
-#'             geneStrand,
+#'             geneRightPos = NA_integer_,
+#'             geneStrand = NA_character_,
 #'             inputMapObj,
 #'             geneSource = "",
 #'             minCovNum = 10,
@@ -23,10 +26,14 @@
 #'             verbose = TRUE)
 #'
 #' @param geneLeftPos An integer vector with the left positions of each gene, in terms of the forward strand.
+#' Can also be a \code{GRanges} object from the \code{GenomicRanges} package that holds all of the positional
+#' information (including strand) for the genes. In that case, the next two parameters should be left as NA.
 #'
 #' @param geneRightPos An integer vector with the right positions of each gene, in terms of the forward strand.
+#' Should be left at the default value of \code{NA_integer_} if \code{geneLeftPos} is a GRanges object.
 #'
 #' @param geneStrand A character vector consisting of "+" and "-", specifying which strand each gene is on.
+#' Should be left at the default value of \code{NA_character_} if \code{geneLeftPos} is a GRanges object.
 #'
 #' @param inputMapObj EITHER an object of class \code{Assessment} and subclass \code{DataMap} OR a character string
 #' corresponding to the strain identifier for one of such objects from \code{AssessORFData}.
@@ -73,20 +80,24 @@
 #' @details
 #' For each of the given genes, \code{AssessGene} assigns a category based on where the conserved starts, conserved stops, and
 #' proteomics hits are located in relation to the start of the gene. The category assignments for the genes are stored in the
-#' \code{CategoryAssignments} vector in the \code{Results} object returned by the function. This vector has the same length as
-#' and aligns with the indexing of the three given gene positional information vectors. Please see
+#' \code{CategoryAssignments} vector in the \code{Results} object returned by the function. Please see
 #' \code{\link{Assessment-class}} for a list of all possible categories and their descriptions.
 #' 
-#' The vectors \code{geneLeftPos}, \code{geneRightPos}, and \code{geneStrand} must all be of the same length. Using the same
-#' index with each vector must provide information on the same gene (think of the vectors as columns of the same table).
-#'
-#' \code{geneLeftPos} and \code{geneRightPos} describe the upstream and downstream positions (respectively) for each gene in
-#' terms of the forward strand. For genes on the forward strand, \code{geneLeftPos} corresponds to the start positions and
-#' \code{geneRightPos} corresponds to stop positions. For genes on the reverse strand, \code{geneLeftPos} corresponds to the
-#' stop positions and \code{geneRightPos} corresponds to the start positions. Gene positions on the reverse strand must be
-#' relative to the 5' to 3' direction of the forward strand (as opposed to being relative to the 5' to 3' direction of the
-#' reverse strand). This means that none of the elements of \code{geneLeftPos} can be greater than (or equal to) the
-#' corresponding element in \code{geneRightPos}.
+#' If \code{geneLeftPos} is a \code{GRanges} object, then the left and right positions of each gene along with the strand of each
+#' gene are extracted from the object. Any sequence names given for the genes within the \code{GRanges} object are ignored, and
+#' the \code{CategoryAssignments} in the returned \code{Results} object follows the same order as to how the genes are listed
+#' within the \code{GRanges} object.
+#' 
+#' If gene positional information is instead given as three vectors, then the three vectors, \code{geneLeftPos}, \code{geneRightPos},
+#' and \code{geneStrand}, must all be of the same length. Using the same index with each vector must provide information on the same
+#' gene (think of the vectors as columns of the same table). \code{geneLeftPos} and \code{geneRightPos} describe the upstream and
+#' downstream positions (respectively) for each gene in terms of the forward strand. For genes on the forward strand, \code{geneLeftPos}
+#' corresponds to the start positions and \code{geneRightPos} corresponds to stop positions. For genes on the reverse strand,
+#' \code{geneLeftPos} corresponds to the stop positions and \code{geneRightPos} corresponds to the start positions. Gene positions on the
+#' reverse strand must be relative to the 5' to 3' direction of the forward strand (as opposed to being relative to the 5' to 3' direction
+#' of the reverse strand). This means that none of the elements of \code{geneLeftPos} can be greater than (or equal to) the corresponding
+#' element in \code{geneRightPos}. The \code{CategoryAssignments} in the returned \code{Results} object has the same length as and aligns
+#' with the indexing of the three given gene positional information vectors. 
 #'
 #' Please ensure that the same genome used in the mapping function is also used to derive the set of genes for this
 #' assessment function. The function will only error if any gene positions are outside the bounds of the genome.
@@ -136,8 +147,8 @@
 #'                           geneSource = "Prodigal")
 #'
 AssessGenes <- function(geneLeftPos,
-                        geneRightPos,
-                        geneStrand,
+                        geneRightPos = NA_integer_,
+                        geneStrand = NA_character_,
                         inputMapObj,
                         geneSource = "",
                         minCovNum = 10L,
@@ -186,49 +197,59 @@ AssessGenes <- function(geneLeftPos,
   
   ## --------------------------------------------------------------------------------------------------------------- ##
   
-  ## Check to see if all the information on the genes is accurate.
-  ## The left and right position vectors must be of type integer.
-  ## Positions cannot extend beyond the bounds of the genome.
-  ## The strand vector must be of type character and contain only "+" or "-".
-  
-  ## The left position vector must be of type integer. Stop otherwise.
-  if ((!is.numeric(geneLeftPos))  || (anyNA(geneLeftPos)) || (any(geneLeftPos %% 1 != 0))) {
-    stop( "Left positions must be given as integer numbers")
-  }
-  
-  ## Check left positions relative to the genome length. Stop if any positions are out of bounds.
-  if ((any(geneLeftPos <= 0L)) || (any(geneLeftPos > genomeLength))) {
-    stop("Left positions must be within the bounds of the genome.")
-  }
-  
-  ## The right position vectors must be of type integer. Stop otherwise.
-  if ((!is.numeric(geneRightPos))  || (anyNA(geneRightPos)) || (any(geneRightPos %% 1 != 0))) {
-    stop("Right positions must be given as integer numbers.")
-  }
-  
-  ## Check right positions relative to the genome length. Stop if any positions are out of bounds.
-  if ((any(geneRightPos <= 0L)) || (any(geneRightPos > genomeLength))) {
-    stop("Right positions must be within the bounds of the genome.")
-  }
-  
-  ## The strand vector must be of type character. Stop otherwise.
-  if ((!is.character(geneStrand)) || (anyNA(geneStrand))) {
-    stop("Strand information must be given as a character vector.")
-  }
-  
-  ## The strand vector must contain only "+" or "-". Stop otherwise.
-  if (any((geneStrand != "+") & (geneStrand != "-"))) {
-    stop("Strand information must consist only of + and -.")
-  }
-  
-  ## All three vectors (left, right, and strand) must be of the same length. Stop otherwise.
-  if ((length(geneLeftPos) != length(geneRightPos)) || (length(geneLeftPos) != length(geneStrand))) {
-    stop("All three gene position vectors must be of the same length.")
-  }
-  
-  ## Left positions must be less than the corresponding right positions. Stop otherwise.
-  if (any(geneLeftPos >= geneRightPos)) {
-    stop("Left positions fpr all genes must be strictly less than the corresponding right positions.")
+  ## First check to see if gene positional information is given as a GRanges object.
+  if (is(geneLeftPos, "GRanges")) {
+    ## If so, extract the gene positional information from the object.
+    geneSet <- geneLeftPos
+    geneLeftPos <-  start(geneSet)
+    geneRightPos <- end(geneSet)
+    geneStrand <- as.character(strand(geneSet))
+  } else {
+    ## The gene positional information is given as three vectors.
+    ## Check to see if all the information on the genes is accurate.
+    ## The left and right position vectors must be of type integer.
+    ## Positions cannot extend beyond the bounds of the genome.
+    ## The strand vector must be of type character and contain only "+" or "-".
+    
+    ## The left position vector must be of type integer. Stop otherwise.
+    if ((!is.numeric(geneLeftPos))  || (anyNA(geneLeftPos)) || (any(geneLeftPos %% 1 != 0))) {
+      stop( "Left positions must be given as integer numbers")
+    }
+    
+    ## Check left positions relative to the genome length. Stop if any positions are out of bounds.
+    if ((any(geneLeftPos <= 0L)) || (any(geneLeftPos > genomeLength))) {
+      stop("Left positions must be within the bounds of the genome.")
+    }
+    
+    ## The right position vectors must be of type integer. Stop otherwise.
+    if ((!is.numeric(geneRightPos))  || (anyNA(geneRightPos)) || (any(geneRightPos %% 1 != 0))) {
+      stop("Right positions must be given as integer numbers.")
+    }
+    
+    ## Check right positions relative to the genome length. Stop if any positions are out of bounds.
+    if ((any(geneRightPos <= 0L)) || (any(geneRightPos > genomeLength))) {
+      stop("Right positions must be within the bounds of the genome.")
+    }
+    
+    ## The strand vector must be of type character. Stop otherwise.
+    if ((!is.character(geneStrand)) || (anyNA(geneStrand))) {
+      stop("Strand information must be given as a character vector.")
+    }
+    
+    ## The strand vector must contain only "+" or "-". Stop otherwise.
+    if (any((geneStrand != "+") & (geneStrand != "-"))) {
+      stop("Strand information must consist only of + and -.")
+    }
+    
+    ## All three vectors (left, right, and strand) must be of the same length. Stop otherwise.
+    if ((length(geneLeftPos) != length(geneRightPos)) || (length(geneLeftPos) != length(geneStrand))) {
+      stop("All three gene position vectors must be of the same length.")
+    }
+    
+    ## Left positions must be less than the corresponding right positions. Stop otherwise.
+    if (any(geneLeftPos >= geneRightPos)) {
+      stop("Left positions fpr all genes must be strictly less than the corresponding right positions.")
+    }
   }
   
   ## --------------------------------------------------------------------------------------------------------------- ##
@@ -404,7 +425,7 @@ AssessGenes <- function(geneLeftPos,
     
     oppRange <- genomeLength - sameRange + 1L
     
-    for (oFrame in (1:6)[-frameID]) {
+    for (oFrame in (seq(1, 6))[-frameID]) {
       if (frameID <= 3) {
         if (oFrame <= 3) {
           oppStrandProt <- fwdProt[[oFrame]][[1]][sameRange]
@@ -439,7 +460,7 @@ AssessGenes <- function(geneLeftPos,
     oppLeftPos <- genomeLength - sameRightPos + 1L
     oppRightPos <- genomeLength - sameLeftPos + 1L
     
-    for (oFrame in (1:6)[-frameID]) {
+    for (oFrame in (seq(1, 6))[-frameID]) {
       
       if (((frameID <= 3) && (oFrame <= 3)) || ((frameID > 3) && (oFrame > 3))) {
         ## Use same
@@ -461,13 +482,13 @@ AssessGenes <- function(geneLeftPos,
   
   cat1A_Counter <- 0L
   
-  cat1A_ORFs <- matrix(0, nrow = sum(sapply(stops, length)), ncol = 5,
+  cat1A_ORFs <- matrix(0, nrow = sum(vapply(stops, length, integer(1))), ncol = 5,
                        dimnames = list(NULL,
                                        c("Start", "End", "Length", "Frame", "OtherProtFrame")))
   
   cat1B_Counter <- 0L
   
-  cat1B_ORFs <- matrix(0, nrow = sum(sapply(stops, length)), ncol = 5,
+  cat1B_ORFs <- matrix(0, nrow = sum(vapply(stops, length, integer(1))), ncol = 5,
                        dimnames = list(NULL,
                                        c("Start", "End", "Length", "Frame", "OtherProtFrame")))
   
@@ -477,7 +498,7 @@ AssessGenes <- function(geneLeftPos,
     pBar <- txtProgressBar(style=ifelse(interactive(), 3, 1))
   }
   
-  for (frameID in 1:6) {
+  for (frameID in seq(1, 6)) {
     if (frameID <= 3) {
       strandID <- "+"
       cFrame <- frameID

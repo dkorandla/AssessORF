@@ -76,9 +76,9 @@ PlotAssessmentMapping <- function(mapObj,
   plotRange <- function(fwdRange) {
     revRange <- genomeLength - fwdRange + 1L
 
-    layout(matrix(1:2))
+    layout(matrix(c(1, 2)))
 
-    for (frame in c(4:6, 1:3)) {
+    for (frame in c(4, 5, 6, 1, 2, 3)) {
 
       if (frame==1L) {
 
@@ -92,7 +92,7 @@ PlotAssessmentMapping <- function(mapObj,
              xaxs= "i",
              yaxs= "i",
              yaxt= "n")
-        axis(2, 0:2 + 0.5, 1:3)
+        axis(2, 0:2 + 0.5, c(1, 2, 3))
 
         if (addPred) {
           # add predicted genes
@@ -115,7 +115,7 @@ PlotAssessmentMapping <- function(mapObj,
              xaxs= "i",
              yaxs= "i",
              yaxt= "n")
-        axis(2, 0:2 + 0.5, 1:3)
+        axis(2, 0:2 + 0.5, c(1, 2, 3))
 
         if (addPred) {
           # add predicted genes
@@ -212,7 +212,7 @@ PlotAssessmentMapping <- function(mapObj,
     if (length(l$x)==0) { # no clicks
       break
     } else if (length(l$x)==1) { # scroll
-      temp <- list(x=par("usr")[1:2])
+      temp <- list(x=par("usr")[c(1, 2)])
       mid <- (temp$x[1] + temp$x[2])/2
       if (l$x - mid > 0) { # move right on forward
         temp$x <- temp$x + (temp$x[2] - temp$x[1])/2
@@ -223,7 +223,7 @@ PlotAssessmentMapping <- function(mapObj,
     } else if (length(l$x)==2) { # zoom to range
       plotRange(checkRange(c(l$x[1], l$x[2])))
     } else if (length(l$x)==3) { # zoom out 10-fold
-      temp <- par("usr")[1:2]
+      temp <- par("usr")[c(1, 2)]
       dtemp <- diff(temp)
       temp <- c(temp[1] - dtemp*4.5,
                 temp[2] + dtemp*4.5)

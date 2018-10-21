@@ -13,17 +13,17 @@ vignette: >
 
 # Introduction
 
-In genomics pipelines, a newly sequenced genome must be annotated before it can be analyzed and compared to other genomes. One of the crucial first steps in genome annotation is identification of gene boundaries within the genome, also known as gene finding or gene prediction. However, gene prediction is not an error-free process and errors can propagate in downstream analyses. As gene finding is simply the process of finding the bounds of each gene within the genome, errors can occur either in the choosing of the start of the gene or in the choosing of the stop of the gene. In reality, errors predominantly occur around the start site because often times there are multiple possible starts for a gene while there is almost always only one stop site possible for a gene. When there are multiple possible starts for a gene, *ab initio* gene prediction programs are limited in that they can only use information from the sequence of the genome to pick the best start of the gene. Such programs utilize heuristics and scoring systems to come to a solution, but the chosen start for a gene might not be the start used *in vivo*. `AssessORF` serves as a tool for assessing the quality of gene predictions and gene prediction programs, utilizing proteomics data and evolutionary conservation data as forms of evidence.
+In genomics pipelines, a newly sequenced genome must be annotated before it can be analyzed and compared to other genomes. One of the crucial first steps in genome annotation is identification of gene boundaries within the genome, also known as gene finding or gene prediction. However, gene prediction is not an error-free process and errors can propagate in downstream analyses. There are three common types of errors in gene finding: a real gene is missing entirely from the predicted set, a gene is included in the predicted set that is not real, and the wrong start is chosen for a real gene. Errors in choosing the correct start site are the most frequent because often times there are multiple possible starts for a gene and it can be difficult to determine which one is right. When there are multiple possible starts for a gene, *ab initio* gene prediction programs are limited in that they can only use information from the sequence of the genome to pick the best start of the gene. Such programs utilize heuristics and scoring systems to come to a solution, but the chosen start for a gene might not be the start used *in vivo*. `AssessORF` serves as a tool for assessing the quality of gene predictions and gene prediction programs, utilizing proteomics data and evolutionary conservation data as forms of evidence.
 
 ## Why Proteomics?
 
-One of the direct products of a gene are proteins, so mapping real protein fragments back to the corresponding genome can provide a rough guide as to where the genes are within a genome. In other words, aligning protein sequences to a genome can prove which genes from a set of predicted genes are definitively real as well as show which genes have starts that do not agree with the protein evidence. Protein evidence contradicts a gene start specifically when there are protein hits in the same open reading frame (ORF) that are directly upstream of or overlapping the start. Additionally, protein evidence to ORFs without a predicted gene can point towards the existence of potential genes missed by the gene finding program. The data from proteomics experiments focused on sequencing the complete set of proteins of an organism is thus highly useful in assessing the quality of a set of predicted genes for that organism.
+One of the direct products of coding genes are proteins, so mapping real protein fragments back to the corresponding genome can provide a rough guide as to where the genes are within a genome. In other words, aligning peptide sequences to a genome can prove which genes from a set of predicted genes are definitively real as well as show which genes have starts that do not agree with the protein evidence. Protein evidence contradicts a gene start specifically when there are protein hits in the same open reading frame (ORF) that are directly upstream of or overlapping the start. Additionally, protein evidence to ORFs without a predicted gene can point towards the existence of potential genes missed by the gene finding program. The data from proteomics experiments focused on sequencing the complete set of proteins of an organism is thus highly useful in assessing the quality of a set of predicted genes for that organism.
 
 ## Why Evolutionary Conservation?
 
-Closely related species usually have highly similar genomic sequences, and the relative positions of genes across closely related species are conserved. This means that the start positions for genes in one species' genome are expected to align with the start positions for genes in a closely related species' genome. Aligning genomes from related species to a central genome (the genome of the organism of interest) therefore provides a way to determine whether or not the right decision was made in choosing the start for each predicted gene. Starts for genes in highly conserved areas of the central genome should also be highly conserved in order to be considered a good start. Additionally, as described above, there can be multiple possible start sites for a gene. If the chosen start for a gene is significantly more conserved than neighboring starts, then that provides strong evidence towards the correctness of that gene.
+Closely related strains usually have similar genomic sequences, and the relative positions of genes across closely related strains are conserved. This means that the start positions for genes in one strain's genome are expected to align with the start positions for genes in a closely related strain's genome. Aligning genomes from related strains to a central genome (the genome of the organism of interest) therefore provides a way to determine whether or not the right decision was made in choosing the start for each predicted gene. Starts for genes in highly conserved areas of the central genome should also be highly conserved in order to be considered a good start. Additionally, as described above, there can be multiple possible start sites for a gene. If the chosen start for a gene is significantly more conserved than neighboring starts, then that provides strong evidence towards the correctness of that gene.
 
-The conservation of stop codons across genomes can provide information about the correctness of a gene as well, albeit in a way that is different from the conservation of starts. There is almost always only one stop possible for a gene because the stop codon serves as the termination signal when the gene is translated into protein. Therefore, the strength of conservation of the given stop for a gene is not informative since there are no other possible (in-frame) stops upstream of the given stop. It is possible, however, for the related genomes to all have a position with a stop codon that aligns to a position in the central genome that does not have stop.  For the purposes of this package, that position in the central genome is defined as being associated with a conserved stop (that has some degree of conservation associated with it). If a position within the middle of a gene in the central genome has a high degree of stop codon conservation, then that is a sign that at least the region upstream of the conserved stop does not code for protein. If there are no strong conserved starts downstream of the conserved stop that could serve as the correct start site of the gene, then it is likely that the gene is an over-prediction and should not exist.
+The conservation of stop codons across genomes can provide information about the correctness of a gene as well, albeit in a way that is different from the conservation of starts. There is almost always only one stop possible for a gene because the stop codon serves as the termination signal when the gene is translated into protein. Therefore, the strength of conservation of the given stop for a gene is not informative since there are no other possible (in-frame) stops upstream of the given stop. It is possible, however, for the related genomes to all have a position with a stop codon that aligns to a position in the central genome that does not have stop.  For the purposes of this package, that position in the central genome is defined as being associated with a conserved stop. If a codon in the middle of a gene in the central genome has a high degree of stop codon conservation, then that is a sign that at least the region of the gene upstream of the conserved stop does not code for protein. If there are no strong conserved starts downstream of the conserved stop that could serve as the correct start site of the gene, then it is likely that the gene is an over-prediction and should not exist.
 
 # Package Structure
 
@@ -32,9 +32,9 @@ Assessing the quality of a set of computationally-derived, *ab initio* gene pred
 1. Map and align the provided evidence, which can either be proteomics data, evolutionary conservation data, or both, back to the central genome.  
 2. Add in gene predictions for that central genome and categorize how much evidence there is supporting or against each gene in that set.  
 
-Each of these steps represents a key function of the package, and each of those two functions returns an object that contains the outcome of the corresponding step. The function `MapAssessmentData` performs the first step (mapping and alignment) and returns a "mapping" object. Within R, mapping objects are structured as lists and are of class `Assessment` and subclass `DataMap`. The function `AssessGenes` performs the second step (gene categorization) by taking in a mapping object and gene predictions and returning a "results" object. Results objects are also structured as lists and are of class `Assessment` and subclass `Results`. `AssessORF` provides functions for viewing and visualizing the data stored in both mapping and results objects, and the `Assessment` help documentation has detailed explanations of what is in each object and methods associated with each object. 
+Each of these steps is implemented by a key function of the package, and each of those two functions returns an object that contains the outcome of the corresponding step. The function `MapAssessmentData` performs the first step (mapping and alignment) and returns a "mapping" object. Within R, mapping objects are structured as lists and are of class `Assessment` and subclass `DataMap`. The function `AssessGenes` performs the second step (gene categorization) by taking in a mapping object and gene predictions and returning a "results" object. Results objects are also structured as lists and are of class `Assessment` and subclass `Results`. `AssessORF` provides functions for viewing and visualizing the data stored in both mapping and results objects, and the `Assessment` help documentation has detailed explanations of what is in each object and methods associated with each object. 
 
-It is important to note that the mapping object built for a particular genome is not dependent upon the gene boundaries chosen for that genome, allowing the same mapping object to be used to assess the quality of gene predictions from multiple programs. This is especially useful because generating a mapping object, even with using proteomics data or evolutionary conservation data by themselves, is a long process.
+It is important to note that the mapping object built for a particular genome is not dependent upon the gene boundaries chosen for that genome, allowing the same mapping object to be used to assess the quality of gene predictions from multiple programs. This is especially useful because generating a mapping object, even when using proteomics data or evolutionary conservation data by themselves, is a long process.
 
 Building off of these concepts, `AssessORF` has a corresponding data package, `AssessORFData`, that provides mapping objects that have already been built and saved for a set of 20 strains. `AssessORFData` also provides multiple results objects for each of those strains, and each results object for a strain uses a set of gene annotations from a different source. 
 
@@ -64,7 +64,7 @@ BiocManager::install("AssessORFData")
 
 # Getting the Data
 
-The central genome should be in FASTA format.
+The central genome should be in FASTA format or Genbank format.
 
 ## Proteomics
 For this package, proteomics data should be given as a set of peptide sequences along with their associated confidence scores. This data is usually generated in the latter stages of the proteomics pipeline, following database searching of the mass spectra and statistical analysis. Additionally, the data should come from experiments focused on sequencing the complete proteome of the organism. Proteomics datasets are available online through websites such as [ProteomeXchange](http://www.proteomexchange.org/) but may require additional steps before use with the package. For example, the ProteomeXchange serves as a repository for mass spectra data from proteomics experiments, and this data must first be search against a database and analyzed before use with the package.
@@ -72,7 +72,7 @@ For this package, proteomics data should be given as a set of peptide sequences 
 ## Evolutionary Conservation
 Evolutionary conservation is determined by aligning genomes from closely related organisms to the central genome. This allows determination of how often sections in the central genome are covered by syntenic matches to related genomes and how often positions within those matching blocks correspond to start codons (ATG, GTG, TTG) in both genomes (central and related). Start codons in the central genome may be highly covered by syntenic matches to related genomes, but the positions of the start codons in the central genome may not always line up with start codons in other genomes.
 
-Related genomes should be genomes from species that are closely related to the strain of the central genome. In most cases, using the set of non-partial genomes from the same genus will work best. However, if the number of available genomes for that genus is too small (less than a couple hundred), it may be necessary to use all genomes from a higher taxonomic rank or include closely related genera from the same family in the set.
+Related genomes should be genomes from strains that are closely related to the strain of the central genome. In most cases, using the set of non-partial genomes from the same genus will work best. However, if the number of available genomes for that genus is too small (less than a couple hundred), it may be necessary to use all genomes from a higher taxonomic rank or include closely related genera from the same family in the set.
 
 Related genomes for this package were downloaded from the Prokaryotes section of NCBI's [Genome Browser](https://www.ncbi.nlm.nih.gov/genome/browse/#!/prokaryotes/) using the following protocol:
 
@@ -86,7 +86,7 @@ There may also may be rare instances where there are too many genomes for a part
 
 After gathering the necessary data, it is time to prepare them for use with the mapping function. For the proteomics data, put the peptide sequence into one vector and their confidence scores (if available) into a second vector. The two vectors should have the same length and have the proteomics hits in the same order (i.e. the score for the xth sequence in the sequence vector is at index x in the score vector).
 
-The central genome and the related genomes must be put into a SQL database. In order to accomplish this, I recommend using the DECIPHER package since this package has been designed to interface with SQL databases built by DECIPHER. The example below describes the process for putting genomes into the database in situations where NCBI's Genome Browser is used as the source for related genomes. Users are encouraged to adapt this workflow to suit their own needs.
+For the central genome and the related genomes, use the DECIPHER package to put them into a SQL database. The example below describes the process for putting genomes into a database in situations where NCBI's Genome Browser is used as the source for related genomes. Users are encouraged to adapt this workflow to suit their own needs.
 
 ```{r message = FALSE}
 library(DECIPHER)
@@ -143,7 +143,7 @@ for (pIdx in seq_along(pass)) {
   t <- try(Seqs2DB(ftps[pIdx], "FASTA", dbConn, as.character(pIdx),
                    compressRepeats=TRUE, verbose=FALSE), silent=TRUE)
   
-  if (class(t) != "try-error") {
+  if (!(is(t, "try-error"))) {
     pass[pIdx] <- TRUE
   }
 }
@@ -165,8 +165,11 @@ The next example shows how to use the `MapAssessmentData` function with the SQL 
 ```{r results = FALSE}
 library(AssessORF)
 
+## Reminder: the first identifier in the database, in this case identifier "1",
+## corresponds to the central genome. The remaining identifers, in this case
+## "2":"26", correspond to the related genomes.
 myMapObj <- MapAssessmentData(dbFile,
-                              central_ID = "1",
+                              central_ID = identifiers[1],
                               related_IDs = identifiers[-1],
                               speciesName = "Human adenovirus 1",
                               useProt = FALSE)
@@ -181,15 +184,13 @@ The following code chunk shows a generalized call to the `MapAssessmentData` fun
 
 ```{r eval = FALSE}
 myMapObj <- MapAssessmentData(dbFile, ## File path to the SQL database containing the genomes
-                              central_ID = "1", ## Identifier for the central genome
+                              central_ID = identifiers[1], ## Identifier for the central genome
                               related_IDs = identifiers[-1], ## Identifers for the related genomes
                               protHits_Seqs = protSeqs, ## Sequences for the proteomics hits
                               protHits_Scores = protScores, ## Confidence scores for the proteomics hits
                               strainID = strain, ## The identifer for the strain
                               speciesName = species) ## The name of the species
 ```
-
-
 
 # Generating the Results Object
 
@@ -225,6 +226,32 @@ currResObj <- AssessGenes(geneLeftPos = prodigalLeft,
                           inputMapObj = currMapObj,
                           geneSource = "Prodigal")
 ```
+
+# Viewing the Results Object
+
+The results object contains the assigned category for each predicted gene, which describes how much evidence there is for or against that gene. There are a number of ways to look at the distribution of categories and the overall correctness of the set of predicted genes.
+
+Printing the results object prints out the number of genes in each category as well as the accuracy scores for the set of predicted genes:
+```{r}
+library(AssessORF)
+
+print(currResObj)
+```
+
+Plotting the results object shows the number of genes in each category in bar chart format:
+```{r}
+library(AssessORF)
+
+plot(currResObj)
+```
+
+It is also possible to do a mosaic plot of the results object. The mosaic plot shows how the distribution of categories varies by gene length:
+```{r}
+library(AssessORF)
+
+mosaicplot(currResObj)
+```
+
 
 
 # Session Info

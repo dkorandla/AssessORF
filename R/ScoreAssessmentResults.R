@@ -1,4 +1,5 @@
 #' @export
+#' @importFrom methods is
 #'
 #' @title Score Gene Assessment Results
 #' @description Scores the results from the assessment of a set of genes using one of three modes

@@ -12,7 +12,7 @@ Description: In order to assess the quality of a set of predicted genes for a ge
     class structures necessary for accomplishing those tasks, using proteomic hits and
     evolutionarily conserved start codons as the forms of evidence.
 Depends: R (>= 3.5.0), DECIPHER (>= 2.8.0)
-Imports: DECIPHER, graphics
+Imports: Biostrings, GenomicRanges, IRanges, graphics, methods, stats, utils
 Suggests: BiocStyle,
     knitr,
     rmarkdown

@@ -1,5 +1,7 @@
 #' @export
 #' @import DECIPHER
+#' @import Biostrings
+#' @importFrom utils txtProgressBar setTxtProgressBar
 #'
 #' @title Map Evidence to a Genome
 #' @description Maps proteomics hits and evolutionarily conserved starts to a central genome
@@ -221,7 +223,7 @@ MapAssessmentData <- function(genomes_DBFile,
       
       protHits_Scores <- rep.int(1L, length(protHits_Seqs))
       
-    } else if ((length(protHits_Seqs) != length(protHits_Scores)) && ((length(protHits_Score) != 1))) {
+    } else if ((length(protHits_Seqs) != length(protHits_Scores)) && ((length(protHits_Scores) != 1))) {
       
       stop("The number of proteomic hit sequences does not match up with the number of proteomic hit scores. ",
            "The number of scores must either be one or the same as the number of sequences.")
@@ -247,7 +249,7 @@ MapAssessmentData <- function(genomes_DBFile,
       }
       
     } else {
-      ## 'protHits_Score' has a length of 1.
+      ## 'protHits_Scores' has a length of 1.
       
       if (verbose) {
         message("'protHits_Scores' has length of 1. ",

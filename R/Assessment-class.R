@@ -93,6 +93,8 @@ as.matrix.Assessment <- function(x, ...) {
 #'
 #' If \code{x} is of subclass \code{Results}, the number of genes in each category and the accuracy scores are printed out
 #' along with any supplied identifying information.
+#' 
+#' @return Invisibly returns the input object \code{x}
 #'
 #' @seealso \code{\link{Assessment-class}}
 #' 
@@ -252,6 +254,7 @@ print.Assessment <- function(x, ...) {
 }
 
 #' @export
+#' @importFrom graphics rgb gray
 #'
 #' @title Plot Assessment Objects
 #' @description The \code{plot} method for \code{Assessment} objects
@@ -275,6 +278,8 @@ print.Assessment <- function(x, ...) {
 #'
 #' If both \code{x} and \code{y} are specified, an interactive genome viewer showing how the proteomics data, evolutionary
 #' evolutionary conservation data, and gene set map to the central genome is plotted.
+#' 
+#' @return Invisibly returns the input object \code{x}
 #'
 #' @seealso \code{\link{Assessment-class}}, \code{\link{locator}}
 #' 
@@ -439,7 +444,8 @@ plot.Assessment <- function(x, y = NULL,
 }
 
 #' @export
-#' @import graphics
+#' @importFrom graphics mosaicplot
+#' @importFrom stats quantile
 #'
 #' @title Plot Genes by Category and Length
 #' @description The \code{mosaicplot} method for \code{Assessment} object
@@ -455,6 +461,8 @@ plot.Assessment <- function(x, y = NULL,
 #' The set of genes are separated into ten quantile bins based on the length of the gene/open reading frame. The genes are then
 #' plotted by length bin and category in a mosaic format, with each column representing a length bin and each row/block
 #' representing a category.
+#' 
+#' @return Invisibly returns the input object \code{x}
 #'
 #' @seealso \code{\link{Assessment-class}}
 #' 
