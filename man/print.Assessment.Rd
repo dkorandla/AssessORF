@@ -11,9 +11,6 @@
 
 \item{...}{Further printing parameters.}
 }
-\value{
-Invisibly returns the input object \code{x}
-}
 \description{
 The \code{print} method for \code{Assessment} objects
 }

@@ -4,7 +4,7 @@
 \alias{plot.Assessment}
 \title{Plot Assessment Objects}
 \usage{
-plot.Assessment(x, y = NULL, related_MinConStart = 0.8, ...)
+\method{plot}{Assessment}(x, y = NULL, related_MinConStart = 0.8, ...)
 }
 \arguments{
 \item{x}{An object of class \code{Assessment} and of either subclass \code{DataMap} or subclass \code{Results}.}
@@ -16,9 +16,6 @@ subclass must be different than the subclass of \code{x}}
 from 0 to 1. Lower values allow more conserved starts through. Recommended to use default value.}
 
 \item{...}{Further plotting parameters.}
-}
-\value{
-Invisibly returns the input object \code{x}
 }
 \description{
 The \code{plot} method for \code{Assessment} objects
