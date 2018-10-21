@@ -853,7 +853,7 @@ AssessGenes <- function(geneLeftPos,
                          dimnames = list(NULL,
                                          c("Start", "End", "Length", "Frame", "OtherProtFrame")))
   } else {
-    cat1A_ORFs <- cat1A_ORFs[1:cat1A_Counter, , drop = FALSE]
+    cat1A_ORFs <- cat1A_ORFs[seq_len(cat1A_Counter), , drop = FALSE]
   }
   
   if (cat1B_Counter <= 0) {
@@ -861,7 +861,7 @@ AssessGenes <- function(geneLeftPos,
                          dimnames = list(NULL,
                                          c("Start", "End", "Length", "Frame", "OtherProtFrame")))
   } else {
-    cat1B_ORFs <- cat1B_ORFs[1:cat1B_Counter, , drop = FALSE]
+    cat1B_ORFs <- cat1B_ORFs[seq_len(cat1B_Counter), , drop = FALSE]
   }
   
   return(structure(list("StrainID" = mapObj$StrainID,

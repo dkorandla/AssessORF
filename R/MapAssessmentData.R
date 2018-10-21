@@ -546,7 +546,7 @@ MapAssessmentData <- function(genomes_DBFile,
         }
       }
       
-      cFrame <- which(sapply(matchLens, sum)==1)
+      cFrame <- which(vapply(matchLens, sum, integer(1))==1)
       cSeq <- which(matchLens[[cFrame]]==1)
       
       begIdx <- unlist(startIndex(matchFrameAA[[cFrame]][cSeq])) + startShift
