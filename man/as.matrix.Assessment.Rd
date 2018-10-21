@@ -4,7 +4,7 @@
 \alias{as.matrix.Assessment}
 \title{Tabulate the Category Assignments for Assessment Results Objects}
 \usage{
-as.matrix.Assessment(x, ...)
+\method{as.matrix}{Assessment}(x, ...)
 }
 \arguments{
 \item{x}{An object of class \code{Assessment} and subclass \code{Results}.}
