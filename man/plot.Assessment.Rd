@@ -4,7 +4,7 @@
 \alias{plot.Assessment}
 \title{Plot Assessment Objects}
 \usage{
-plot.Assessment(x, y = NULL, related_MinConStart = 0.8, ...)
+\method{plot}{Assessment}(x, y = NULL, related_MinConStart = 0.8, ...)
 }
 \arguments{
 \item{x}{An object of class \code{Assessment} and of either subclass \code{DataMap} or subclass \code{Results}.}
