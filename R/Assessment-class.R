@@ -81,6 +81,8 @@ as.matrix.Assessment <- function(x, ...) {
 }
 
 #' @export
+#' 
+#' @method print Assessment
 #'
 #' @title Print Assessment Objects
 #' @description The \code{print} method for \code{Assessment} objects
@@ -256,7 +258,10 @@ print.Assessment <- function(x, ...) {
 }
 
 #' @export
+#' @import graphics
 #' @importFrom  grDevices gray rgb
+#' 
+#' @method plot Assessment
 #'
 #' @title Plot Assessment Objects
 #' @description The \code{plot} method for \code{Assessment} objects
@@ -448,6 +453,8 @@ plot.Assessment <- function(x, y = NULL,
 #' @export
 #' @importFrom graphics mosaicplot
 #' @importFrom stats quantile
+#' 
+#' @method mosaicplot Assessment
 #'
 #' @title Plot Genes by Category and Length
 #' @description The \code{mosaicplot} method for \code{Assessment} object

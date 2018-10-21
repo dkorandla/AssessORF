@@ -1,6 +1,7 @@
 #' @export
 #' @import DECIPHER
 #' @import Biostrings
+#' @importFrom IRanges IRanges
 #' @importFrom utils txtProgressBar setTxtProgressBar
 #'
 #' @title Map Evidence to a Genome
