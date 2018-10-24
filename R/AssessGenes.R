@@ -78,7 +78,7 @@
 #' Default value is FALSE.
 #'
 #' @details
-#' For each of the given genes, \code{AssessGene} assigns a category based on where the conserved starts, conserved stops, and
+#' For each of the given genes, \code{AssessGene} assigns a category based on where conserved starts, conserved stops, and/or
 #' proteomics hits are located in relation to the start of the gene. The category assignments for the genes are stored in the
 #' \code{CategoryAssignments} vector in the \code{Results} object returned by the function. Please see
 #' \code{\link{Assessment-class}} for a list of all possible categories and their descriptions.
@@ -99,8 +99,9 @@
 #' element in \code{geneRightPos}. The \code{CategoryAssignments} in the returned \code{Results} object has the same length as and aligns
 #' with the indexing of the three given gene positional information vectors. 
 #'
-#' Please ensure that the same genome used in the mapping function is also used to derive the set of genes for this
-#' assessment function. The function will only error if any gene positions are outside the bounds of the genome.
+#' Please ensure that the same genome used in the mapping function is also used to derive the set of genes for this assessment function.
+#' The function will only error if any gene positions are outside the bounds of the genome and does not make any other checks to make sure
+#' the genes are valid for the genome.
 #'
 #' The maximum of either \code{minCovNum} or (\code{minCovPct}/100) multiplied by the number of related genomes is used as
 #' the minimum coverage required in determining conserved starts and stops.
@@ -204,53 +205,54 @@ AssessGenes <- function(geneLeftPos,
     geneLeftPos <-  start(geneSet)
     geneRightPos <- end(geneSet)
     geneStrand <- as.character(strand(geneSet))
-  } else {
-    ## The gene positional information is given as three vectors.
-    ## Check to see if all the information on the genes is accurate.
-    ## The left and right position vectors must be of type integer.
-    ## Positions cannot extend beyond the bounds of the genome.
-    ## The strand vector must be of type character and contain only "+" or "-".
-    
-    ## The left position vector must be of type integer. Stop otherwise.
-    if ((!is.numeric(geneLeftPos))  || (anyNA(geneLeftPos)) || (any(geneLeftPos %% 1 != 0))) {
-      stop( "Left positions must be given as integer numbers")
-    }
-    
-    ## Check left positions relative to the genome length. Stop if any positions are out of bounds.
-    if ((any(geneLeftPos <= 0L)) || (any(geneLeftPos > genomeLength))) {
-      stop("Left positions must be within the bounds of the genome.")
-    }
-    
-    ## The right position vectors must be of type integer. Stop otherwise.
-    if ((!is.numeric(geneRightPos))  || (anyNA(geneRightPos)) || (any(geneRightPos %% 1 != 0))) {
-      stop("Right positions must be given as integer numbers.")
-    }
-    
-    ## Check right positions relative to the genome length. Stop if any positions are out of bounds.
-    if ((any(geneRightPos <= 0L)) || (any(geneRightPos > genomeLength))) {
-      stop("Right positions must be within the bounds of the genome.")
-    }
-    
-    ## The strand vector must be of type character. Stop otherwise.
-    if ((!is.character(geneStrand)) || (anyNA(geneStrand))) {
-      stop("Strand information must be given as a character vector.")
-    }
-    
-    ## The strand vector must contain only "+" or "-". Stop otherwise.
-    if (any((geneStrand != "+") & (geneStrand != "-"))) {
-      stop("Strand information must consist only of + and -.")
-    }
-    
-    ## All three vectors (left, right, and strand) must be of the same length. Stop otherwise.
-    if ((length(geneLeftPos) != length(geneRightPos)) || (length(geneLeftPos) != length(geneStrand))) {
-      stop("All three gene position vectors must be of the same length.")
-    }
-    
-    ## Left positions must be less than the corresponding right positions. Stop otherwise.
-    if (any(geneLeftPos >= geneRightPos)) {
-      stop("Left positions fpr all genes must be strictly less than the corresponding right positions.")
-    }
   }
+  
+  ## The gene positional information is (now) given as three vectors.
+  ## Check to see if all the information on the genes is accurate.
+  ## The left and right position vectors must be of type integer.
+  ## Positions cannot extend beyond the bounds of the genome.
+  ## The strand vector must be of type character and contain only "+" or "-".
+  
+  ## The left position vector must be of type integer. Stop otherwise.
+  if ((!is.numeric(geneLeftPos))  || (anyNA(geneLeftPos)) || (any(geneLeftPos %% 1 != 0))) {
+    stop( "Left positions must be given as integer numbers")
+  }
+  
+  ## Check left positions relative to the genome length. Stop if any positions are out of bounds.
+  if ((any(geneLeftPos <= 0L)) || (any(geneLeftPos > genomeLength))) {
+    stop("Left positions must be within the bounds of the genome.")
+  }
+  
+  ## The right position vectors must be of type integer. Stop otherwise.
+  if ((!is.numeric(geneRightPos))  || (anyNA(geneRightPos)) || (any(geneRightPos %% 1 != 0))) {
+    stop("Right positions must be given as integer numbers.")
+  }
+  
+  ## Check right positions relative to the genome length. Stop if any positions are out of bounds.
+  if ((any(geneRightPos <= 0L)) || (any(geneRightPos > genomeLength))) {
+    stop("Right positions must be within the bounds of the genome.")
+  }
+  
+  ## The strand vector must be of type character. Stop otherwise.
+  if ((!is.character(geneStrand)) || (anyNA(geneStrand))) {
+    stop("Strand information must be given as a character vector.")
+  }
+  
+  ## The strand vector must contain only "+" or "-". Stop otherwise.
+  if (any((geneStrand != "+") & (geneStrand != "-"))) {
+    stop("Strand information must consist only of + and -.")
+  }
+  
+  ## All three vectors (left, right, and strand) must be of the same length. Stop otherwise.
+  if ((length(geneLeftPos) != length(geneRightPos)) || (length(geneLeftPos) != length(geneStrand))) {
+    stop("All three gene position vectors must be of the same length.")
+  }
+  
+  ## Left positions must be less than the corresponding right positions. Stop otherwise.
+  if (any(geneLeftPos >= geneRightPos)) {
+    stop("Left positions fpr all genes must be strictly less than the corresponding right positions.")
+  }
+  
   
   ## --------------------------------------------------------------------------------------------------------------- ##
   

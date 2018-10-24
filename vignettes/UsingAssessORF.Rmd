@@ -25,6 +25,8 @@ Closely related strains usually have similar genomic sequences, and the relative
 
 The conservation of stop codons across genomes can provide information about the correctness of a gene as well, albeit in a way that is different from the conservation of starts. There is almost always only one stop possible for a gene because the stop codon serves as the termination signal when the gene is translated into protein. Therefore, the strength of conservation of the given stop for a gene is not informative since there are no other possible (in-frame) stops upstream of the given stop. It is possible, however, for the related genomes to all have a position with a stop codon that aligns to a position in the central genome that does not have stop.  For the purposes of this package, that position in the central genome is defined as being associated with a conserved stop. If a codon in the middle of a gene in the central genome has a high degree of stop codon conservation, then that is a sign that at least the region of the gene upstream of the conserved stop does not code for protein. If there are no strong conserved starts downstream of the conserved stop that could serve as the correct start site of the gene, then it is likely that the gene is an over-prediction and should not exist.
 
+\newpage
+
 # Package Structure
 
 Assessing the quality of a set of computationally-derived, *ab initio* gene predictions for a genome requires external data to be aligned to that genome before judgments on quality can be made. `AssessORF` follows this methodology, and once external data has been acquired and set up (see the "Getting the Data" section below), usage of the package typically happens in two steps:
@@ -39,6 +41,8 @@ It is important to note that the mapping object built for a particular genome is
 Building off of these concepts, `AssessORF` has a corresponding data package, `AssessORFData`, that provides mapping objects that have already been built and saved for a set of 20 strains. `AssessORFData` also provides multiple results objects for each of those strains, and each results object for a strain uses a set of gene annotations from a different source. 
 
 The next couple of sections will describe how to use `AssessORF` from putting together the data to analyzing the results.
+
+\newpage
 
 # Installation
 
@@ -62,25 +66,29 @@ if (!requireNamespace("BiocManager", quietly = TRUE)){
 BiocManager::install("AssessORFData")
 ```
 
+\newpage
+
 # Getting the Data
 
 The central genome should be in FASTA format or Genbank format.
 
 ## Proteomics
-For this package, proteomics data should be given as a set of peptide sequences along with their associated confidence scores. This data is usually generated in the latter stages of the proteomics pipeline, following database searching of the mass spectra and statistical analysis. Additionally, the data should come from experiments focused on sequencing the complete proteome of the organism. Proteomics datasets are available online through websites such as [ProteomeXchange](http://www.proteomexchange.org/) but may require additional steps before use with the package. For example, the ProteomeXchange serves as a repository for mass spectra data from proteomics experiments, and this data must first be search against a database and analyzed before use with the package.
+For this package, proteomics data should be given as a set of peptide sequences along with their associated confidence scores. This data is usually generated in the latter stages of the proteomics pipeline, following database searching of the mass spectra and statistical analysis. Additionally, the data should come from experiments focused on sequencing the complete proteome of the organism. Proteomics datasets are available online through websites such as [ProteomeXchange](http://www.proteomexchange.org/) but may require additional steps before use with the package. For example, the ProteomeXchange serves as a repository for mass spectra data from proteomics experiments, and this data must first be searched against a database and analyzed before use with the package.
 
 ## Evolutionary Conservation
 Evolutionary conservation is determined by aligning genomes from closely related organisms to the central genome. This allows determination of how often sections in the central genome are covered by syntenic matches to related genomes and how often positions within those matching blocks correspond to start codons (ATG, GTG, TTG) in both genomes (central and related). Start codons in the central genome may be highly covered by syntenic matches to related genomes, but the positions of the start codons in the central genome may not always line up with start codons in other genomes.
 
 Related genomes should be genomes from strains that are closely related to the strain of the central genome. In most cases, using the set of non-partial genomes from the same genus will work best. However, if the number of available genomes for that genus is too small (less than a couple hundred), it may be necessary to use all genomes from a higher taxonomic rank or include closely related genera from the same family in the set.
 
-Related genomes for this package were downloaded from the Prokaryotes section of NCBI's [Genome Browser](https://www.ncbi.nlm.nih.gov/genome/browse/#!/prokaryotes/) using the following protocol:
+To compile the set of related genomes, I recommend downloading links to their sequences from the Prokaryotes section of NCBI's [Genome Browser](https://www.ncbi.nlm.nih.gov/genome/browse/#!/prokaryotes/) using the following protocol:
 
 1. Search for the taxon.
 2. Exclude partial genomes (this is an option in the "Partial" section of the "Filters" menu).
 3. Download the selected records to a CSV file.
 
 There may also may be rare instances where there are too many genomes for a particular species (i.e. the 8352 genomes for *Streptococcus pneumoniae*). In those cases, remove all genomes for that species from the CSV file and replace them with only genomes for that species that are complete on the assembly level (this is an option in the "Assembly Level" section of the "Filters" menu).
+
+\newpage
 
 # Creating the Mapping Object
 
@@ -192,6 +200,8 @@ myMapObj <- MapAssessmentData(dbFile, ## File path to the SQL database containin
                               speciesName = species) ## The name of the species
 ```
 
+\newpage
+
 # Generating the Results Object
 
 1. Acquire a set of genes, either from a gene prediction program or from an online database with annotations, for the strain of interest.
@@ -227,6 +237,8 @@ currResObj <- AssessGenes(geneLeftPos = prodigalLeft,
                           geneSource = "Prodigal")
 ```
 
+\newpage
+
 # Viewing the Results Object
 
 The results object contains the assigned category for each predicted gene, which describes how much evidence there is for or against that gene. There are a number of ways to look at the distribution of categories and the overall correctness of the set of predicted genes.
@@ -238,21 +250,25 @@ library(AssessORF)
 print(currResObj)
 ```
 
+\newpage
+
 Plotting the results object shows the number of genes in each category in bar chart format:
-```{r}
+```{r fig.height=7, fig.width=7, fig.align="center"}
 library(AssessORF)
 
 plot(currResObj)
 ```
 
+\newpage
+
 It is also possible to do a mosaic plot of the results object. The mosaic plot shows how the distribution of categories varies by gene length:
-```{r}
+```{r fig.height=15, fig.width=15, fig.align="center"}
 library(AssessORF)
 
 mosaicplot(currResObj)
 ```
 
-
+\newpage
 
 # Session Info
 

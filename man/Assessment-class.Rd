@@ -5,11 +5,10 @@
 
 \description{
 In order to assess the quality of a set of (predicted) genes for a genome, evidence must first be mapped to that genome.
-Next, each gene must be categorized based on how strong the evidence is for or against that gene. Class \code{Assessment}
+Next, each gene must be categorized based on how strong the evidence is for that gene or against that gene. Class \code{Assessment}
 furnishes objects that can store the neccesary information for assessing a set of genes for a genome and also provides
-functions for viewing and visualizing assessment information. Class \code{Assessment} objects specifically utilize proteomic
-hits and evolutionarily conserved start & stop codons (both found through aligning related genomes to the genome of interest) as the
-forms of evidence to determine the evidence for each gene in a given set.
+functions for viewing and visualizing assessment information. Specifically, class \code{Assessment} objects utilize proteomic hits
+and evolutionarily conserved start & stop codons as evidence to determine the correctness for each gene in a given set.
 }
 
 \section{\code{DataMap} Objects}{
@@ -63,10 +62,10 @@ forms of evidence to determine the evidence for each gene in a given set.
 
 \section{Gene Categories}{
   The \code{CategoryAssignments} vector in \code{Results} objects describes how the proteomics evidence and evolutionarily
-  conserved start codon evidence support or disprove the corresponding set of genes. In the vector, each gene is assigned a
-  character string code that has the following format: "Y CS_ PE_". The first part, the "Y", signifies that for this ORF
-  contains a predicted gene. The second part, the "CS_", describes how the conserved start(s) lines up with the given gene
-  start. The third part, the "PE_", describes how the proteomics hits line up with the given gene start.
+  conserved start/stop codon evidence support or disprove the corresponding set of genes. In the vector, each gene is assigned
+  a character string code that has the following format: "Y CS[_] PE[_]". The first part, the "Y", signifies that for this ORF
+  contains a predicted gene. The second part, the "CS[_]", describes how the conserved start(s) lines up with the given gene
+  start. The third part, the "PE[_]", describes how the proteomics hits line up with the given gene start.
   
   \describe{
     \item{\code{Y CS+ PE+}}{There is a good conserved start aligned with the gene start with protein evidence downstream.}
