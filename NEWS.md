@@ -7,3 +7,7 @@
 ## Changes in version 0.99.20
 
 * Minor edits to man pages and the vignette
+
+## Changes in version 0.99.21
+
+* Minor edits to man pages and the vignette
