@@ -52,7 +52,8 @@ Default value is false.}
 Default value is 8. Recommended to use the default value.}
 
 \item{related_MinDist}{The minimum fractional distance required for a related genome to be used in finding
-evolutionary conservation. Default value is 0.01. Recommended to use the default value.}
+evolutionary conservation. Used to prevent the inclusion of related genomes that are too similar to the central genome.
+Default value is 0.01. Recommended to use the default value.}
 
 \item{related_MaxDistantN}{The maximum number of related genomes to use in finding evolutionary conservation after the
 related genomes have been sorted from most distantly related to most closely related in relation to the central genome.
@@ -105,13 +106,13 @@ positions correspond to the start codons (start codon conservation) in both geno
 codons in related genomes (stop codon conservation). A ratio of conservation to coverage is used in downstream functions to measure
 the strength of both conserved starts and conserved stops.
 
-Related genomes should be genomes from species that are closely related to the given strain. \code{related_IDs} specifies the
-identifiers for the sequences of the related genomes inside the database. Any related genome identifier (each element of
-\code{related_IDs}) is considered invalid and not used when finding evolutionary conservation if it is not found in the
-databse. Please note that the function will only error when none of the related genomes are found. \code{related_MinDist} is used
-to prevent the inclusion of related genomes that are too similar to the central genome. It is recommended to keep
-\code{related_MinDist} at the default value. If there are less valid related genomes in the sequence database than value of
-\code{related_MaxDistantN}, all related genomes will be used in finding evolutionary conservation.
+Related genomes should be from species that are closely related to the given strain. \code{related_IDs} specifies the identifiers
+for the sequences of the related genomes inside the database. A related genome identifier (each element of \code{related_IDs}) is
+considered invalid and not used when finding evolutionary conservation if it is not found in the databse. Please note that the function
+will only error when none of the related genomes are found.
+
+If there are less valid related genomes in the sequence database than value of \code{related_MaxDistantN}, all valid related genomes
+will be used in finding evolutionary conservation.
 
 The logical flag \code{useProt} is used to indicate whether or not proteomics evidence has been provided and should be mapped to
 the genome. Error checking will not occur for any arguments that involve proteomics if it is false.

@@ -82,7 +82,7 @@ Assess and categorize a set of genes for a genome using proteomics hits, evoluti
 and evolutionarily conserved stops as evidence
 }
 \details{
-For each of the given genes, \code{AssessGene} assigns a category based on where the conserved starts, conserved stops, and
+For each of the given genes, \code{AssessGene} assigns a category based on where conserved starts, conserved stops, and/or
 proteomics hits are located in relation to the start of the gene. The category assignments for the genes are stored in the
 \code{CategoryAssignments} vector in the \code{Results} object returned by the function. Please see
 \code{\link{Assessment-class}} for a list of all possible categories and their descriptions.
@@ -103,8 +103,9 @@ of the reverse strand). This means that none of the elements of \code{geneLeftPo
 element in \code{geneRightPos}. The \code{CategoryAssignments} in the returned \code{Results} object has the same length as and aligns
 with the indexing of the three given gene positional information vectors. 
 
-Please ensure that the same genome used in the mapping function is also used to derive the set of genes for this
-assessment function. The function will only error if any gene positions are outside the bounds of the genome.
+Please ensure that the same genome used in the mapping function is also used to derive the set of genes for this assessment function.
+The function will only error if any gene positions are outside the bounds of the genome and does not make any other checks to make sure
+the genes are valid for the genome.
 
 The maximum of either \code{minCovNum} or (\code{minCovPct}/100) multiplied by the number of related genomes is used as
 the minimum coverage required in determining conserved starts and stops.

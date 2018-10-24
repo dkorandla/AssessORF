@@ -20,13 +20,13 @@ Scores the results from the assessment of a set of genes using one of three mode
 }
 \details{
 \code{ScoreAssessmentResults} calculates an accuracy-like score for the categorization of genes within the given
-\code{Results} object using the given mode of calculation. The accuracy score for a mode is equal to the number of genes
-that were categorized to be correct for that mode divided by the total number of genes that could have been categorized
-as correct for that mode (i.e. a count of the number of genes that had available and useable evidence for that particular
+\code{Results} object using the given mode of calculation. The score for a mode is equal to the number of genes that
+were categorized to be correct for that mode divided by the total number of genes that could have been categorized as
+correct for that mode (i.e. a count of the number of genes that had available and useable evidence for that particular
 mode).
 
 Open reading frames with proteomics evidence but no predicted start are included in the total gene count when calculating
-the accuracy score for the proteomics mode and for both all evidence modes.
+the accuracy-like score for the proteomics mode and for both all evidence modes.
 
 In the weighted, all evidence mode, weights for each category are determined by the number of types of evidence that are
 supporting or against genes in the category. Counts are multiplied by their corresponding weight, and the maximum value for
