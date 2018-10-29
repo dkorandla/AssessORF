@@ -179,14 +179,11 @@ AssessGenes <- function(geneLeftPos,
   if ((is(inputMapObj, "Assessment")) && (is(inputMapObj, "DataMap"))) {
     mapObj <- inputMapObj
   } else if (is.character(inputMapObj) && (length(inputMapObj) == 1)){
-    if (!("package:AssessORFData" %in% search())) {
-      if (!(any(installed.packages()[, 1] == "AssessORFData"))) {
-        stop("The package 'AssessORFData' has not been installed.")
-      }
-      stop("The package 'AssessORFData' has not been loaded.")
+    if (!(any(installed.packages()[, 1] == "AssessORFData"))) {
+      stop("The package 'AssessORFData' has not been installed.")
     }
     
-    mapObj <- GetDataMapObj(inputMapObj)
+    mapObj <- AssessORFData::GetDataMapObj(inputMapObj)
     
   } else {
     stop("'inputMapObj' must either be an object of class 'Assessment', subclass 'DataMap' ",

@@ -11,3 +11,8 @@
 ## Changes in version 0.99.21
 
 * Minor edits to man pages and the vignette
+
+## Changes in version 0.99.22
+
+* Added data package to Suggests list
+* Tweaked connection to data package in the AssessGenes function
