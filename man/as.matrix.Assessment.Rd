@@ -20,7 +20,7 @@ The \code{as.matrix} method for \code{Assessment} and subclass \code{Results} ob
 }
 \details{
 \code{as.matrix.Assessment} tabulates and returns the number of times each category appears in the \code{CategoryAssignments}
-vector within the given \code{Results} object. If the number of genes for any the 12 main gene / ORF categories is zero, a
+vector within the given \code{Results} object. If the number of genes for any the 14 main gene / ORF categories is zero, a
 count (of zero) will still be included for that category.
 }
 \examples{

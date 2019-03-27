@@ -1,6 +1,6 @@
 ---
 title: "Using AssessORF"
-shorttitle: "Using AsessORF"
+shorttitle: "Using AssessORF"
 author: "Deepank Korandla"
 date: "`r doc_date()`"
 package: "`r pkg_ver('AssessORF')`"
@@ -17,7 +17,7 @@ In genomics pipelines, a newly sequenced genome must be annotated before it can 
 
 ## Why Proteomics?
 
-One of the direct products of coding genes are proteins, so mapping real protein fragments back to the corresponding genome can provide a rough guide as to where the genes are within a genome. In other words, aligning peptide sequences to a genome can prove which genes from a set of predicted genes are definitively real as well as show which genes have starts that do not agree with the protein evidence. Protein evidence contradicts a gene start specifically when there are protein hits in the same open reading frame (ORF) that are directly upstream of or overlapping the start. Additionally, protein evidence to ORFs without a predicted gene can point towards the existence of potential genes missed by the gene finding program. The data from proteomics experiments focused on sequencing the complete set of proteins of an organism is thus highly useful in assessing the quality of a set of predicted genes for that organism.
+One of the direct products of coding genes are proteins, so mapping real protein fragments back to the corresponding genome can provide a rough guide as to where the genes are within a genome. In other words, aligning peptide sequences to a genome can prove which genes from a set of predicted genes are definitively real as well as show which genes have starts that do not agree with the protein evidence. Protein evidence contradicts a gene start specifically when there are protein hits in the same open reading frame (ORF) that are directly upstream of or overlapping the start. Additionally, protein evidence in ORFs without a predicted gene can point towards the existence of potential genes missed by the gene finding program. The data from proteomics experiments focused on sequencing the complete set of proteins of an organism is thus highly useful in assessing the quality of a set of predicted genes for that organism.
 
 ## Why Evolutionary Conservation?
 
@@ -96,19 +96,16 @@ After gathering the necessary data, it is time to prepare them for use with the 
 
 For the central genome and the related genomes, use the DECIPHER package to put them into a SQL database. The example below describes the process for putting genomes into a database in situations where NCBI's Genome Browser is used as the source for related genomes. Users are encouraged to adapt this workflow to suit their own needs.
 
-```{r message = FALSE}
+```{r error = FALSE, warning = FALSE, message = FALSE}
 library(DECIPHER)
 
 ## Path to the SQL database file (will be created if necessary)
 ## In this example, a temporary file will be used, but it is recommended that
 ## the user specify a file path they prefer to use as the location of the 
 ## database instead.
-dbFile <- tempfile()
+databaseFile <- tempfile()
 ## Here is what the alternate option would like:
-# dbFile <- "<insert file path to database here>"
-
-## Connect to the database.
-dbConn <- dbConnect(SQLite(), dbFile)
+# databaseFile <- "<insert file path to database here>"
 
 ## Path to the file containing the links to the related genomes
 ## In this example, the file comes from NCBI's genome browser site and is in
@@ -118,21 +115,21 @@ dbConn <- dbConnect(SQLite(), dbFile)
 ## CSV file instead. The rest of this example assumes that the links are
 ## provided in this format. For help on adding genome sequences provided in
 ## other formats to a database, consult DECIPHER's manual and vignettes.
-genomesFile <- system.file("extdata",
+relGenomesFile <- system.file("extdata",
                            "AdenoviridaeGenomes.csv",
                            package = "AssessORF")
 ## Here is what the alternate option would like:
-# genomesFile <- "<insert path to CSV file here>"
+# relGenomesFile <- "<insert path to CSV file here>"
 
 ## Extract the FTP links from the CSV file and make sure they are in the right
 ## format so they can be downloaded from the NCBI server. In order to minimize
-## the time spent running the example, only the first 26 rows of the table are
-## used. The user should drop the '[1:26, ]' part if they plan on using this
+## the time spent running the example, only the first 13 rows of the table are
+## used. The user should drop the '[1:13, ]' part if they plan on using this
 ## example as a starting point for putting sequences into a database.
-genomesTable <- read.csv(genomesFile, stringsAsFactors=FALSE)[1:26, ]
+genomesTable <- read.csv(relGenomesFile, stringsAsFactors = FALSE)[1:13, ]
 ftps <- genomesTable$GenBank.FTP
 ftps <- paste(ftps, paste0(basename(ftps), "_genomic.fna.gz"), sep="/")
-ftps <- ftps[which(substring(ftps, 1, 6)=="ftp://")]
+ftps <- ftps[(substring(ftps, 1, 6) == "ftp://")]
 
 ## In this example, the first genome in the table is the central genome.
 ## In most user scenarios however, the path to the central genome will not be in
@@ -147,26 +144,42 @@ ftps <- ftps[which(substring(ftps, 1, 6)=="ftp://")]
 pass <- logical(length(ftps))
 
 ## Add the sequences to the database.
-for (pIdx in seq_along(pass)) {
-  t <- try(Seqs2DB(ftps[pIdx], "FASTA", dbConn, as.character(pIdx),
-                   compressRepeats=TRUE, verbose=FALSE), silent=TRUE)
-  
-  if (!(is(t, "try-error"))) {
-    pass[pIdx] <- TRUE
-  }
-}
+## The loop can cause timeout errors if there is no internet connection
+## when the package is built so it has been commented out so the example
+## runs smoothly. Users should uncomment this loop when adapting the
+## example for their own use.
+# for (pIdx in seq_along(pass)) {
+#   t <- try(Seqs2DB(ftps[pIdx], "FASTA", databaseFile, as.character(pIdx),
+#                    compressRepeats=TRUE, verbose=FALSE),
+#            silent=TRUE)
+#   
+#   if (!(is(t, "try-error"))) {
+#     pass[pIdx] <- TRUE
+#   }
+# }
 
 ## This vector contains the list of identifers for the genomes in the database,
 ## based on which ones were successfully added. Identifers are character
 ## strings. The first one, identifier "1", corresponds to the central genome.
-## The remaining identifers, in this case "2":"26", correspond to the related
+## The remaining identifers, in this case "2":"13", correspond to the related
 ## genomes.
 identifiers <- as.character(which(pass))
-
-dbDisconnect(dbConn)
 ```
 
-In the example above, a set of Adenoviridae genomes from NCBI was used as the source for both the central genome and the related genomes. Human adenovirus 1 is the strain of interest here, and its genome serves the central genome (identifier 1). The remaining genomes in the set serve as the related genomes (identifiers 2 - 26). Please note that the package is only intended to be used with prokaryotes. Viruses are used in some examples in the package because manipulations with viral genomes run much faster than those with prokaryotic genomes (due to viral genomes being much smaller in size).
+```{r echo = FALSE}
+## If some (or all) of the genome sequences were not added to the database,
+## copy over the database file within the package and use it as the database
+## for the vignette examples instead. Next, fix 'identifiers' appropriately.
+if (length(identifiers) < length(pass)) {
+  file.copy(system.file("extdata", "Adenoviridae.sqlite", package = "AssessORF"),
+            databaseFile,
+            overwrite = TRUE)
+  
+  identifiers <- as.character(seq_along(pass))
+}
+```
+
+In the example above, a set of Adenoviridae genomes from NCBI was used as the source for both the central genome and the related genomes. Human adenovirus 1 is the strain of interest here, and its genome serves the central genome (identifier 1). The remaining genomes in the set serve as the related genomes (identifiers 2 - 13). Please note that the package is only intended to be used with prokaryotes. Viruses are used in some examples in the package because manipulations with viral genomes run much faster than those with prokaryotic genomes (due to viral genomes being much smaller in size).
 
 The next example shows how to use the `MapAssessmentData` function with the SQL database (and database identifiers) generated in the previous example. Since there is no proteomics data in this instance, `useProt` will be set to `FALSE`.
 
@@ -175,8 +188,8 @@ library(AssessORF)
 
 ## Reminder: the first identifier in the database, in this case identifier "1",
 ## corresponds to the central genome. The remaining identifers, in this case
-## "2":"26", correspond to the related genomes.
-myMapObj <- MapAssessmentData(dbFile,
+## "2":"13", correspond to the related genomes.
+myMapObj <- MapAssessmentData(databaseFile,
                               central_ID = identifiers[1],
                               related_IDs = identifiers[-1],
                               speciesName = "Human adenovirus 1",
@@ -185,13 +198,13 @@ myMapObj <- MapAssessmentData(dbFile,
 
 ```{r}
 ## Remember to use 'unlink' to remove a database once it is no longer needed.
-unlink(dbFile)
+unlink(databaseFile)
 ```
 
 The following code chunk shows a generalized call to the `MapAssessmentData` function, outlining which parameters users should specify when working with both evolutionary conservation data and proteomics data.
 
 ```{r eval = FALSE}
-myMapObj <- MapAssessmentData(dbFile, ## File path to the SQL database containing the genomes
+myMapObj <- MapAssessmentData(databaseFile, ## File path to the SQL database containing the genomes
                               central_ID = identifiers[1], ## Identifier for the central genome
                               related_IDs = identifiers[-1], ## Identifers for the related genomes
                               protHits_Seqs = protSeqs, ## Sequences for the proteomics hits
@@ -216,8 +229,6 @@ myMapObj <- MapAssessmentData(dbFile, ## File path to the SQL database containin
 Below is an example of how to use the `AssessGenes` function, using the pre-saved mapping object for *Streptococcus pyogenes* MGAS5005 and the corresponding set of Prodigal-predicted genes.
 
 ```{r results = FALSE}
-library(AssessORF)
-
 currMapObj <- readRDS(system.file("extdata",
                                   "MGAS5005_PreSaved_DataMapObj.rds",
                                   package = "AssessORF"))
@@ -245,8 +256,6 @@ The results object contains the assigned category for each predicted gene, which
 
 Printing the results object prints out the number of genes in each category as well as the accuracy scores for the set of predicted genes:
 ```{r}
-library(AssessORF)
-
 print(currResObj)
 ```
 
@@ -254,8 +263,6 @@ print(currResObj)
 
 Plotting the results object shows the number of genes in each category in bar chart format:
 ```{r fig.height=7, fig.width=7, fig.align="center"}
-library(AssessORF)
-
 plot(currResObj)
 ```
 
@@ -263,8 +270,6 @@ plot(currResObj)
 
 It is also possible to do a mosaic plot of the results object. The mosaic plot shows how the distribution of categories varies by gene length:
 ```{r fig.height=15, fig.width=15, fig.align="center"}
-library(AssessORF)
-
 mosaicplot(currResObj)
 ```
 

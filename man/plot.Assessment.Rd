@@ -28,10 +28,14 @@ If only \code{x} is specified and \code{x} is of subclass \code{DataMap}, an int
 proteomics data and evolutionary conservation data maps to the central genome is plotted.
 
 If only \code{x} is specified and \code{x} is of subclass \code{Results}, a bar chart describing the number of genes in each
-category is plotted.
+category is plotted. For the predicted gene categories, bars are colored by the correctness of that category, where dark green
+represents "definitely correct", light green represents "likely correct", white represents "no evidence", dark red represents
+"definitely incorrect", light red represents "likely incorrect", and grey represents "potentially incorrect". For the two
+categories that come from ORFs without predicted genes, dark blue represents "likely missing" and light blue represents
+"potentially missing".
 
 If both \code{x} and \code{y} are specified, an interactive genome viewer showing how the proteomics data, evolutionary
-evolutionary conservation data, and gene set map to the central genome is plotted.
+conservation data, and gene set map to the central genome is plotted.
 }
 \examples{
 

@@ -18,6 +18,8 @@ MapAssessmentData(genomes_DBFile,
                   related_MinDist = 0.01,
                   related_MaxDistantN = 1000,
                   startCodons = c("ATG", "GTG", "TTG"),
+                  ema_AlphaVal = 0.1,
+                  ema_MinVal = 0.6,
                   useProt = TRUE,
                   useCons = TRUE,
                   verbose = TRUE)
@@ -59,8 +61,14 @@ Default value is 0.01. Recommended to use the default value.}
 related genomes have been sorted from most distantly related to most closely related in relation to the central genome.
 Default value is 1000.}
 
-\item{startCodons}{A charcter vector consisting of three-letter DNA strings to use as the start codons when finding
+\item{startCodons}{A character vector consisting of three-letter DNA strings to use as the start codons when finding
 evolutionarily conserved starts.}
+
+\item{ema_AlphaVal}{The alpha value to use when calculating the exponential moving average over an alignment derived
+from a synteny map. Default value is 0.1. Recommended to use the default value.}
+
+\item{ema_MinVal}{The minimum exponential moving average value required for an alignment position to be incorporated
+into the conservation vectors. Default value is 0.6. Recommended to use the default value.}
 
 \item{useProt}{Logical indicating whether or not proteomics evidence should be mapped to the genome.
 Default value is true. Cannot be false if \code{useCons} is false.}
@@ -96,15 +104,22 @@ Only proteomics hits with a score greater than the value of the percentile that 
 will be kept and the rest of the hits will be dropped. If all the proteomics hits have the same score or if \code{protHits_Threshold}
 is zero, no thresholding will occur and no hits will be dropped.
 
-Please note that \code{protHits_IsNTerm} has no affect on how the proteomics evidence is mapped to the central genome but it can be
-used to affect how genes are assessed and categorized in \code{\link{AssessGenes}}.
+Please note that the logical parameter \code{protHits_IsNTerm} has no effect on how the proteomics evidence is mapped to the central
+genome but it can be used to affect how genes are assessed and categorized in \code{AssessGenes}. The \code{NTermProteomics} item in
+the outputted object is set to the value of \code{protHits_IsNTerm} (TRUE or FALSE). Users then have the option of requiring that
+\code{AssessGenes} specifically perform N-terminal proteomics assessment when categorizing genes via the \code{useNTermProt} parameter
+to the \code{AssessGenes} function. To summarize, the \code{protHits_IsNTerm} parameter in the \code{MapAssessmentData} function and
+the \code{useNTermProt} in the \code{AssessGenes} function must both be set to TRUE in order to perform N-terminal proteomics
+assessment. See \code{\link{AssessGenes}} for more details.
 
 Evolutionarily conserved starts and conserved stop are found by first measuring how far the related genomes are from the central
-genome using k-mer frequencies. Next, the most distant related genomes are aligned to the central genome. This provides information
-on how often each position in the central genome is covered by syntenic matches to related genomes (coverage), how often those
-positions correspond to the start codons (start codon conservation) in both genomes, and how often those positions correspond to stop
-codons in related genomes (stop codon conservation). A ratio of conservation to coverage is used in downstream functions to measure
-the strength of both conserved starts and conserved stops.
+genome using k-mer frequencies. Next, synteny is mapped between the central genome and each of the most distant related genomes, and
+alignments are built from those synteny maps. An exponential moving average (EMA) is calculated over the alignment (based on whether
+the central genome is identical to the related genome at that position) to filter out areas of poor alignment. The synteny maps and
+filterd alignments provide information on how often each position in the central genome is covered by syntenic matches to related
+genomes (coverage), how often those positions correspond to the start codons (start codon conservation) in both genomes, and how
+often those positions correspond to stop codons in related genomes (stop codon conservation). A ratio of conservation to coverage is
+used in downstream functions to measure the strength of both conserved starts and conserved stops.
 
 Related genomes should be from species that are closely related to the given strain. \code{related_IDs} specifies the identifiers
 for the sequences of the related genomes inside the database. A related genome identifier (each element of \code{related_IDs}) is
@@ -136,13 +151,13 @@ myMapObj <- MapAssessmentData(myDBFile, central_ID = "1",
 ## Human adenovirus 1 is the strain of interest, and the set of Adenoviridae
 ## genomes will serve as the set of genome. The cenral genome, also known as
 ## the genome of human adenovirus 1, is at identifier 1. The related genomes
-## are at identifiers 2 - 26.
+## are at identifiers 2 - 13.
 
 myMapObj <- MapAssessmentData(system.file("extdata",
                                           "Adenoviridae.sqlite",
                                           package = "AssessORF"),
                               central_ID = "1",
-                              related_IDs = as.character(2:26),
+                              related_IDs = as.character(2:13),
                               speciesName = "Human adenovirus 1",
                               useProt = FALSE)
 

@@ -6,7 +6,7 @@
 \description{
 In order to assess the quality of a set of (predicted) genes for a genome, evidence must first be mapped to that genome.
 Next, each gene must be categorized based on how strong the evidence is for that gene or against that gene. Class \code{Assessment}
-furnishes objects that can store the neccesary information for assessing a set of genes for a genome and also provides
+furnishes objects that can store the necessary information for assessing a set of genes for a genome and also provides
 functions for viewing and visualizing assessment information. Specifically, class \code{Assessment} objects utilize proteomic hits
 and evolutionarily conserved start & stop codons as evidence to determine the correctness for each gene in a given set.
 }
@@ -30,7 +30,7 @@ and evolutionarily conserved start & stop codons as evidence to determine the co
     \item{\code{RevCoverage}}{Coverage of the reverse strand of the central genome}
     \item{\code{RevConStarts}}{Start codon conservation of the reverse strand of the central genome}
     \item{\code{RevConStops}}{Stop codon conservation of the reverse strand of the central genome}
-    \item{\code{NumRelatedGenomes}}{Number of related genomes that were mapped to the central genome}
+    \item{\code{NumRelatedGenomes}}{Final number of related genomes that were mapped to the central genome}
     \item{\code{HasProteomics}}{Logical describing whether or not proteomics evidence has been mapped to the central genome}
     \item{\code{HasConservation}}{Logical describing whether or not evolutionary conservation evidence has been mapped to the central genome}
   }
@@ -52,7 +52,7 @@ and evolutionarily conserved start & stop codons as evidence to determine the co
     \item{\code{GeneSource}}{The source of the given set of genes}
     \item{\code{NumGenes}}{Number of genes given}
     \item{\code{N_CS-_PE+_ORFs}}{Data for open reading frames with no gene start but with proteomics evidence}
-    \item{\code{N_CS+_PE+_ORFs}}{Data for open reading frames with no gene start but with proteomics evidence and at least one
+    \item{\code{N_CS<_PE+_ORFs}}{Data for open reading frames with no gene start but with proteomics evidence and at least one
     valid evolutionarily conserved start}
     \item{\code{CategoryAssignments}}{A character vector that stores the category assignment for each of the given genes in the
     same order as the gene information (please see below for a list of all possible categories, their descriptions, and their

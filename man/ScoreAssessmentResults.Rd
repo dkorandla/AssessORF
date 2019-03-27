@@ -9,8 +9,8 @@ ScoreAssessmentResults(x, mode = "a")
 \arguments{
 \item{x}{An object of class \code{Assessment} and subclass \code{Results}.}
 
-\item{mode}{Must either be "a" (use all evidence), "p" (use proteomics evidence only),
-"c" (use evolutionary conservation evidence only), or "w" (use all evidence but with weights).}
+\item{mode}{Must either be "a" (use all evidence), "p" (use proteomics evidence only), or
+"c" (use evolutionary conservation evidence only)}
 }
 \value{
 A numeric vector of length one containing the calculated accuracy-like score.
@@ -26,11 +26,7 @@ correct for that mode (i.e. a count of the number of genes that had available an
 mode).
 
 Open reading frames with proteomics evidence but no predicted start are included in the total gene count when calculating
-the accuracy-like score for the proteomics mode and for both all evidence modes.
-
-In the weighted, all evidence mode, weights for each category are determined by the number of types of evidence that are
-supporting or against genes in the category. Counts are multiplied by their corresponding weight, and the maximum value for
-a weight is 2.
+the accuracy-like score for the proteomics mode and for the all evidence mode.
 }
 \examples{
 

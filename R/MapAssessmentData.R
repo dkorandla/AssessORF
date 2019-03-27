@@ -22,6 +22,8 @@
 #'                   related_MinDist = 0.01,
 #'                   related_MaxDistantN = 1000,
 #'                   startCodons = c("ATG", "GTG", "TTG"),
+#'                   ema_AlphaVal = 0.1,
+#'                   ema_MinVal = 0.6,
 #'                   useProt = TRUE,
 #'                   useCons = TRUE,
 #'                   verbose = TRUE)
@@ -62,8 +64,14 @@
 #' related genomes have been sorted from most distantly related to most closely related in relation to the central genome.
 #' Default value is 1000.
 #' 
-#' @param startCodons A charcter vector consisting of three-letter DNA strings to use as the start codons when finding
+#' @param startCodons A character vector consisting of three-letter DNA strings to use as the start codons when finding
 #' evolutionarily conserved starts.
+#' 
+#' @param ema_AlphaVal The alpha value to use when calculating the exponential moving average over an alignment derived
+#' from a synteny map. Default value is 0.1. Recommended to use the default value.
+#' 
+#' @param ema_MinVal The minimum exponential moving average value required for an alignment position to be incorporated
+#' into the conservation vectors. Default value is 0.6. Recommended to use the default value.
 #' 
 #' @param useProt Logical indicating whether or not proteomics evidence should be mapped to the genome.
 #' Default value is true. Cannot be false if \code{useCons} is false.
@@ -93,15 +101,22 @@
 #' will be kept and the rest of the hits will be dropped. If all the proteomics hits have the same score or if \code{protHits_Threshold}
 #' is zero, no thresholding will occur and no hits will be dropped.
 #' 
-#' Please note that \code{protHits_IsNTerm} has no affect on how the proteomics evidence is mapped to the central genome but it can be
-#' used to affect how genes are assessed and categorized in \code{\link{AssessGenes}}.
+#' Please note that the logical parameter \code{protHits_IsNTerm} has no effect on how the proteomics evidence is mapped to the central
+#' genome but it can be used to affect how genes are assessed and categorized in \code{AssessGenes}. The \code{NTermProteomics} item in
+#' the outputted object is set to the value of \code{protHits_IsNTerm} (TRUE or FALSE). Users then have the option of requiring that
+#' \code{AssessGenes} specifically perform N-terminal proteomics assessment when categorizing genes via the \code{useNTermProt} parameter
+#' to the \code{AssessGenes} function. To summarize, the \code{protHits_IsNTerm} parameter in the \code{MapAssessmentData} function and
+#' the \code{useNTermProt} in the \code{AssessGenes} function must both be set to TRUE in order to perform N-terminal proteomics
+#' assessment. See \code{\link{AssessGenes}} for more details.
 #'
 #' Evolutionarily conserved starts and conserved stop are found by first measuring how far the related genomes are from the central
-#' genome using k-mer frequencies. Next, the most distant related genomes are aligned to the central genome. This provides information
-#' on how often each position in the central genome is covered by syntenic matches to related genomes (coverage), how often those
-#' positions correspond to the start codons (start codon conservation) in both genomes, and how often those positions correspond to stop
-#' codons in related genomes (stop codon conservation). A ratio of conservation to coverage is used in downstream functions to measure
-#' the strength of both conserved starts and conserved stops.
+#' genome using k-mer frequencies. Next, synteny is mapped between the central genome and each of the most distant related genomes, and
+#' alignments are built from those synteny maps. An exponential moving average (EMA) is calculated over the alignment (based on whether
+#' the central genome is identical to the related genome at that position) to filter out areas of poor alignment. The synteny maps and
+#' filterd alignments provide information on how often each position in the central genome is covered by syntenic matches to related
+#' genomes (coverage), how often those positions correspond to the start codons (start codon conservation) in both genomes, and how
+#' often those positions correspond to stop codons in related genomes (stop codon conservation). A ratio of conservation to coverage is
+#' used in downstream functions to measure the strength of both conserved starts and conserved stops.
 #'
 #' Related genomes should be from species that are closely related to the given strain. \code{related_IDs} specifies the identifiers
 #' for the sequences of the related genomes inside the database. A related genome identifier (each element of \code{related_IDs}) is
@@ -137,13 +152,13 @@
 #' ## Human adenovirus 1 is the strain of interest, and the set of Adenoviridae
 #' ## genomes will serve as the set of genome. The cenral genome, also known as
 #' ## the genome of human adenovirus 1, is at identifier 1. The related genomes
-#' ## are at identifiers 2 - 26.
+#' ## are at identifiers 2 - 13.
 #' 
 #' myMapObj <- MapAssessmentData(system.file("extdata",
 #'                                           "Adenoviridae.sqlite",
 #'                                           package = "AssessORF"),
 #'                               central_ID = "1",
-#'                               related_IDs = as.character(2:26),
+#'                               related_IDs = as.character(2:13),
 #'                               speciesName = "Human adenovirus 1",
 #'                               useProt = FALSE)
 #' 
@@ -162,6 +177,8 @@ MapAssessmentData <- function(genomes_DBFile,
                               related_MinDist = 0.01,
                               related_MaxDistantN = 1000L,
                               startCodons = c("ATG", "GTG", "TTG"),
+                              ema_AlphaVal = 0.1,
+                              ema_MinVal = 0.6,
                               useProt = TRUE,
                               useCons = TRUE,
                               verbose = TRUE) {
@@ -367,6 +384,36 @@ MapAssessmentData <- function(genomes_DBFile,
         !(all(unlist(strsplit(startCodons, split = "")) %in% c("A", "C", "G", "T")))) {
       stop("'startCodons' must consist only of three-letter DNA strings.")
     }
+    
+    if ((!is.numeric(ema_AlphaVal))  || (anyNA(ema_AlphaVal))) {
+      stop("The alpha value for calulating exponential moving averages ",
+           "must be a valid real number.")
+    }
+    
+    if (length(ema_AlphaVal) != 1) {
+      stop("Exactly one number must be inputted as the alpha value for ",
+           "calulating exponential moving averages.")
+    }
+    
+    if ((ema_AlphaVal <= 0) || (ema_AlphaVal >= 1)) {
+      stop("The alpha value for calulating exponential moving averages ",
+           "must be greater than 0 and less than 1.")
+    }
+    
+    if ((!is.numeric(ema_MinVal))  || (anyNA(ema_MinVal))) {
+      stop("The minimum required exponential moving average value ",
+           "must be a valid real number.")
+    }
+    
+    if (length(ema_MinVal) != 1) {
+      stop("Exactly one number must be inputted as the minimum required ",
+           "exponential moving average value.")
+    }
+    
+    if ((ema_MinVal <= 0) || (ema_MinVal >= 1)) {
+      stop("The minimum required exponential moving average value ",
+           "must be greater than 0 and less than 1.")
+    }
   }
   
   ## --------------------------------------------------------------------------------------------------------------- ##
@@ -435,17 +482,17 @@ MapAssessmentData <- function(genomes_DBFile,
   stopsByFrame <- vector("list", 6)
   
   for (frame in seq_along(fwdFrameAA)) {
-    s <- vmatchPattern("*", fwdFrameAA[[frame]])
-    s <- unlist(startIndex(s))
-    s <- (s - 1)*3 + frame
-    stopsByFrame[[frame]] <- s
+    currMatch <- vmatchPattern("*", fwdFrameAA[[frame]])
+    currMatch <- unlist(startIndex(currMatch))
+    currMatch <- (currMatch - 1)*3 + frame
+    stopsByFrame[[frame]] <- currMatch
   }
   
   for (frame in seq_along(revFrameAA)) {
-    s <- vmatchPattern("*", revFrameAA[[frame]])
-    s <- unlist(startIndex(s))
-    s <- (s - 1)*3 + frame
-    stopsByFrame[[frame + 3]] <- s
+    currMatch <- vmatchPattern("*", revFrameAA[[frame]])
+    currMatch <- unlist(startIndex(currMatch))
+    currMatch <- (currMatch - 1)*3 + frame
+    stopsByFrame[[frame + 3]] <- currMatch
   }
   
   ## --------------------------------------------------------------------------------------------------------------- ##
@@ -647,7 +694,7 @@ MapAssessmentData <- function(genomes_DBFile,
     
     ## --------------------------------------------------------------------------------------------------------------- ##
     
-    ## Set up conservation and coverage vectors.
+    ## Set up the conservation vectors.
     
     gPos <- seq_len(genomeLen - 2)
     
@@ -678,42 +725,75 @@ MapAssessmentData <- function(genomes_DBFile,
       
       synteny <- FindSynteny(genomes_DBFile,
                              identifier = c(central_ID, validRelated_IDs[rIdx]),
-                             sepCost = -1e-3, gapCost = -1e-2,
-                             maxSep = 500, maxGap = 200,
-                             minScore = 40, dropScore = 0,
                              verbose = FALSE)
       
-      dna <- AlignSynteny(synteny,
-                          genomes_DBFile,
-                          verbose = FALSE)
+      currAlign <- AlignSynteny(synteny,
+                                genomes_DBFile,
+                                verbose = FALSE)
       
-      s <- strsplit(as.character(unlist(dna[[1]])), "", fixed=TRUE)
+      currAlignSeq <- strsplit(as.character(unlist(currAlign[[1]])), "", fixed=TRUE)
       
-      for (iIdx in seq_len(length(s)/2)) {
-        w <- synteny[2,1][[1]][iIdx, "start1"]:synteny[2,1][[1]][iIdx, "end1"]
+      for (iIdx in seq_len(length(currAlignSeq) / 2)) {
+        currRange <- synteny[2,1][[1]][iIdx, "start1"]:synteny[2,1][[1]][iIdx, "end1"]
         
-        fwdCov[w] <- fwdCov[w] + 1L
-        revCov[genomeLen - w + 1] <- revCov[genomeLen - w + 1] + 1L
+        ## --------------------------------------------------------------------------- ##
         
-        pos <- which(s[[iIdx*2 - 1]] != "-")
-        pos1 <- pos[-c(length(pos) - 1, length(pos))]
-        pos2 <- pos[-c(1, length(pos))]
-        pos3 <- pos[-c(1, 2)]
+        ## Get the non-gap alignment positions for the central genome.
+        ## This serves as the basis for determing the central genome triplets
+        ## and the related genome triplets that are aligned to them.
+        nonGapPos <- which(currAlignSeq[[(iIdx * 2) - 1]] != "-")
         
-        # which nucleotides are identical
-        #identical <- which(s[[j*2 - 1]][pos] == s[[j*2]][pos])
-        # which codons are both ATG, GTG, or TTG
+        ## --------------------------------------------------------------------------- ##
         
-        centralCodons <- paste(s[[(iIdx * 2) - 1]][pos1],
-                               s[[(iIdx * 2) - 1]][pos2],
-                               s[[(iIdx * 2) - 1]][pos3],
+        ## Determine which codons in the central genome alignment are identical
+        ## to corresponding codons in the related genome alignment.
+        areIdentical <- (currAlignSeq[[(iIdx * 2) - 1]][nonGapPos]) ==
+          (currAlignSeq[[iIdx * 2]][nonGapPos])
+        
+        currLen <- length(areIdentical)
+        
+        ## Calculate the exponential moving average in both directions.
+        leadAvg <- trailAvg <- numeric(currLen)
+        
+        leadAvg[1] <- areIdentical[1]
+        trailAvg[currLen] <- areIdentical[currLen]
+        
+        for (pIdx_Lead in seq(2,  currLen, by = 1)) {
+          ## Leading average
+          leadAvg[pIdx_Lead] <- (ema_AlphaVal * areIdentical[pIdx_Lead]) +
+            ((1 - ema_AlphaVal) * leadAvg[pIdx_Lead - 1])
+          
+          ## Trailing average
+          pIdx_Trail <- currLen - (pIdx_Lead - 1L)
+          
+          trailAvg[pIdx_Trail] <- (ema_AlphaVal * areIdentical[pIdx_Trail]) +
+            ((1 - ema_AlphaVal) * trailAvg[pIdx_Trail + 1])          
+        }
+        
+        ## Get the mean of the two moving average vectors.
+        centerAvg <- (leadAvg + trailAvg) / 2
+        
+        ## --------------------------------------------------------------------------- ##
+        
+        ## Get the first, second, and third position for each possible triplet.
+        pos1 <- nonGapPos[-c(length(nonGapPos) - 1, length(nonGapPos))]
+        pos2 <- nonGapPos[-c(1, length(nonGapPos))]
+        pos3 <- nonGapPos[-c(1, 2)]
+        
+        ## Use the triplet positions to get the codons from the
+        ## central genome alignment sequence.
+        centralCodons <- paste(currAlignSeq[[(iIdx * 2) - 1]][pos1],
+                               currAlignSeq[[(iIdx * 2) - 1]][pos2],
+                               currAlignSeq[[(iIdx * 2) - 1]][pos3],
                                sep = "")
         
-        relatedCodons <- paste(s[[iIdx * 2]][pos1],
-                               s[[iIdx * 2]][pos2],
-                               s[[iIdx * 2]][pos3],
+        ## Do the same for the related genome alignment sequence.
+        relatedCodons <- paste(currAlignSeq[[iIdx * 2]][pos1],
+                               currAlignSeq[[iIdx * 2]][pos2],
+                               currAlignSeq[[iIdx * 2]][pos3],
                                sep = "")
         
+        ## Ignore any codons whose sequence of triplet positions cross a gap.
         crossGapCodons <- which((pos1 + 1L != pos2) | (pos2 + 1L != pos3))
         
         if (length(crossGapCodons) > 0) {
@@ -721,32 +801,74 @@ MapAssessmentData <- function(genomes_DBFile,
           relatedCodons[crossGapCodons] <- NA_character_
         }
         
-        ## Forward conserved starts
-        identical <- which((centralCodons %in% startCodons) & (relatedCodons %in% startCodons))
+        ## --------------------------------------------------------------------------- ##
         
-        if (length(identical) > 0) {
-          fwdConStarts[w[identical]] <- fwdConStarts[w[identical]] + 1L
+        ## Positions in the central genome are only covered if they correspond
+        ## to valid (non-gap) codons in the related genome alignment sequence
+        ## AND if the "center point" moving average is greater than the
+        ## threshold at that position.
+        relNoGap <- (relatedCodons %in% names(GENETIC_CODE))
+        avgAboveT <- (centerAvg[seq(1, length(centerAvg) - 2, by = 1)] >= ema_MinVal)
+        
+        covRange <- currRange[which(relNoGap & avgAboveT)]
+        
+        ## Add to the coverage.
+        fwdCov[covRange] <- fwdCov[covRange] + 1L
+        revCov[genomeLen - covRange - 1] <- revCov[genomeLen - covRange - 1] + 1L
+        
+        ## --------------------------------------------------------------------------- ##
+        
+        ## Positions in the central genome can only be conserved if they are
+        ## also covered. This is applied to finding start and stop codons in
+        ## both forward and reverse directions (based on the first triplet
+        ## position).
+        
+        ## Forward conserved starts
+        areStarts <- currRange[which((centralCodons %in% startCodons) &
+                                       (relatedCodons %in% startCodons))]
+        
+        if (length(areStarts) > 0) {
+          validPos <- areStarts[(areStarts %in% covRange)]
+          
+          if (length(validPos) > 0) {
+            fwdConStarts[validPos] <- fwdConStarts[validPos] + 1L
+          }
         }
         
         ## Reverse conserved starts
-        identical <- which((centralCodons %in% revCompStartCodons) & (relatedCodons %in% revCompStartCodons))
+        areStarts <- currRange[which((centralCodons %in% revCompStartCodons) &
+                                       (relatedCodons %in% revCompStartCodons))]
         
-        if (length(identical) > 0) {
-          revConStarts[genomeLen - w[identical] - 1] <- revConStarts[genomeLen - w[identical] - 1] + 1L
+        if (length(areStarts) > 0) {
+          validPos <- areStarts[(areStarts %in% covRange)]
+          
+          if (length(validPos) > 0) {
+            revConStarts[genomeLen - validPos - 1] <-
+              revConStarts[genomeLen - validPos - 1] + 1L
+          }
         }
         
         ## Forward conserved stops
-        hasStop <- which(relatedCodons %in% stopCodons)
+        hasStop <- currRange[which(relatedCodons %in% stopCodons)]
         
         if (length(hasStop) > 0){
-          fwdConStops[w[hasStop]] <- fwdConStops[w[hasStop]] + 1L
+          validPos <- hasStop[(hasStop %in% covRange)]
+          
+          if (length(validPos) > 0) {
+            fwdConStops[validPos] <- fwdConStops[validPos] + 1L
+          }
         }
         
         ## Reverse conserved stops
-        hasStop <- which(relatedCodons %in% revCompStopCodons)
+        hasStop <- currRange[which(relatedCodons %in% revCompStopCodons)]
         
         if (length(hasStop) > 0){
-          revConStops[genomeLen - w[hasStop] - 1] <- revConStops[genomeLen - w[hasStop] - 1] + 1L
+          validPos <- hasStop[(hasStop %in% covRange)]
+          
+          if (length(validPos) > 0) {
+            revConStops[genomeLen - validPos - 1] <-
+              revConStops[genomeLen - validPos - 1] + 1L
+          }
         }
       }
       
