@@ -70,7 +70,7 @@ BiocManager::install("AssessORFData")
 
 # Getting the Data
 
-The central genome should be in FASTA format or Genbank format.
+The central genome should be in FASTA format or GenBank format.
 
 ## Proteomics
 For this package, proteomics data should be given as a set of peptide sequences along with their associated confidence scores. This data is usually generated in the latter stages of the proteomics pipeline, following database searching of the mass spectra and statistical analysis. Additionally, the data should come from experiments focused on sequencing the complete proteome of the organism. Proteomics datasets are available online through websites such as [ProteomeXchange](http://www.proteomexchange.org/) but may require additional steps before use with the package. For example, the ProteomeXchange serves as a repository for mass spectra data from proteomics experiments, and this data must first be searched against a database and analyzed before use with the package.
@@ -271,6 +271,19 @@ plot(currResObj)
 It is also possible to do a mosaic plot of the results object. The mosaic plot shows how the distribution of categories varies by gene length:
 ```{r fig.height=15, fig.width=15, fig.align="center"}
 mosaicplot(currResObj)
+```
+
+\newpage
+
+# Comparing Results Objects
+
+Since the same mapping object can be reused to assess any set of genes for that particular genome, it is useful to compare the results from assessing the set of predictions from one program to the results from assessing the set of predictions from another program. The `CompareAssessmentResults` function compares the genes and their corresponding category assignments inside two results objects generated from the same mapping object. The example below shows a comparison of the results object generated above using predicted genes from Prodigal to a results object generated using genes from another program, GeneMarkS-2:
+```{r}
+resObj2 <- readRDS(system.file("extdata",
+                                  "MGAS5005_PreSaved_ResultsObj_GeneMarkS2.rds",
+                                  package = "AssessORF"))
+
+CompareAssessmentResults(currResObj, resObj2)
 ```
 
 \newpage

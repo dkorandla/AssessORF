@@ -1,8 +1,8 @@
 Package: AssessORF
 Type: Package
 Title: Assess Gene Predictions Using Proteomics and Evolutionary Conservation
-Version: 1.1.5
-Date: 2019-01-11
+Version: 1.1.7
+Date: 2019-04-29
 Authors@R: c(
     person("Deepank", "Korandla", email = "dkorandl@andrew.cmu.edu", role = c("aut", "cre")),
     person("Erik", "Wright", email = "eswright@pitt.edu", role = "aut"))
@@ -20,5 +20,5 @@ License: GPL-3
 Encoding: UTF-8
 LazyData: true
 NeedsCompilation: no
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
 VignetteBuilder: knitr

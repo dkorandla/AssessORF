@@ -13,10 +13,13 @@ AssessGenes(geneLeftPos,
             minCovPct = 5,
             minConCovRatio_Strong = 0.99,
             limConCovRatio_NotCon = 0.8,
+            maxN_AltConStart = 200,
+            frac_AltConStart = 0.5,
             minConCovRatio_Stop = 0.5,
             noConStopsGeneFrac = 0.5,
-            minMissORFLen = 0,
-            allowNestedORFs = FALSE,
+            minNumProtHitsNORFs = 2L,
+            minLenNORFs = 0,
+            allowNestedNORFs = FALSE,
             useNTermProt = FALSE,
             verbose = TRUE)
 }
@@ -50,6 +53,15 @@ Must range from 0 to 1. Lower values allow more conserved starts through. Recomm
 start not conserved. Used when making a decision on how to categorize the conserved start evidence. Must range from 0 to 1
 Recommended to use the default value.}
 
+\item{maxN_AltConStart}{Maximum nucleotide distance that non-predicted, conserved starts can be away from the start of an ORF (the
+previous in-frame stop) in order for such starts to be considered an alternative to the predicted start.
+Recommend to use the default value.}
+
+\item{frac_AltConStart}{Value from 0 to 1 describing the fractional range of positions in a ORF, starting from the previous in-frame
+stop and moving towards the ORF-ending stop to use in search for non-predicted, conserved starts in order for such starts to be
+considered an alternative to the predicted start. For example, a value of 0.25 means that the first quarter of the ORF is checked,
+a value of 0.5 correspond to the first half of the ORF, etc. Recommended to use the default value.}
+
 \item{minConCovRatio_Stop}{Minimum value of the stop codon conservation to coverage ratio needed to say a position in the central
 genome corresponds to a conserved stop across the related genomes. Must range from 0 to 1. Lower values allow more conserved stops
 through. Recommended to use the default value.}
@@ -59,10 +71,13 @@ gene and moving towards the stop of the gene, to use in searching for conserved 
 first quarter of the gene is checked for conserved stops, a value of 0.5 correspond to the first half of the gene, etc. Recommended
 to use the default value.}
 
-\item{minMissORFLen}{Minimum ORF length required to include an ORF with protein hits
-but no given/predicted gene start in the final output.}
+\item{minNumProtHitsNORFs}{Number of peptide hits required to be in an ORF with protein hits but no given/predicted gene start in order for
+such an ORF to be included in the final output.}
 
-\item{allowNestedORFs}{Logical indicating whether or not to include ORFs with protein hits but no given/predicted
+\item{minLenNORFs}{Minimum ORF length required to include an ORF with protein hits but no given/predicted gene start in the
+final output.}
+
+\item{allowNestedNORFs}{Logical indicating whether or not to include ORFs with protein hits but no given/predicted
 gene starts that are completely nested within an ORF in another frame in the final output.}
 
 \item{useNTermProt}{Logical indicating whether or not to treat proteomics evidence in the given mapping object as originating

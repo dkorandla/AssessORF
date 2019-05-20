@@ -26,6 +26,7 @@
 #'                   ema_MinVal = 0.6,
 #'                   useProt = TRUE,
 #'                   useCons = TRUE,
+#'                   processors = 1,
 #'                   verbose = TRUE)
 #'
 #' @param genomes_DBFile A SQLite connection object or a character string specifying the path to the database file.
@@ -78,6 +79,9 @@
 #' 
 #' @param useCons Logical indicating whether or not evolutionary conservation evidence should be mapped to the genome.
 #' Default value is true. Cannot be false if \code{useProt} is false.
+#' 
+#' @param processors Number describing the how many processors to use with DECIPHER functions. Should be either a
+#' positive integer that describes the number of processors to use or NULL to detect and use all available processors.
 #'
 #' @param verbose Logical indicating whether or not to display progress and status messages.
 #'
@@ -181,6 +185,7 @@ MapAssessmentData <- function(genomes_DBFile,
                               ema_MinVal = 0.6,
                               useProt = TRUE,
                               useCons = TRUE,
+                              processors = 1,
                               verbose = TRUE) {
   
   ## Check inputs for error.
@@ -436,8 +441,8 @@ MapAssessmentData <- function(genomes_DBFile,
   
   ## --------------------------------------------------------------------------------------------------------------- ##
   
-  fwdGenome <- SearchDB(dbFile = genomes_DBFile, identifier = central_ID,
-                        type = "DNAStringSet", verbose = FALSE)
+  fwdGenome <- SearchDB(dbFile = genomes_DBFile, tblName = tblName, identifier = central_ID,
+                        type = "DNAStringSet", processors = processors, verbose = FALSE)
   
   if (length(fwdGenome) <= 0) {
     stop("Central genome not found in database. ",
@@ -642,8 +647,10 @@ MapAssessmentData <- function(genomes_DBFile,
     
     for (rIdx in seq_along(related_IDs)) {
       currRGenome <- SearchDB(genomes_DBFile,
+                              tblName = tblName,
                               identifier = related_IDs[rIdx],
                               type = "DNAStringSet",
+                              processors = processors,
                               verbose = FALSE)
       
       currRGenome <- DNAStringSet(unlist(currRGenome))
@@ -724,11 +731,15 @@ MapAssessmentData <- function(genomes_DBFile,
     for (rIdx in seq_along(validRelated_IDs)) {
       
       synteny <- FindSynteny(genomes_DBFile,
+                             tblName = tblName,
                              identifier = c(central_ID, validRelated_IDs[rIdx]),
+                             processors = processors,
                              verbose = FALSE)
       
       currAlign <- AlignSynteny(synteny,
+                                tblName = tblName,
                                 genomes_DBFile,
+                                processors = processors,
                                 verbose = FALSE)
       
       currAlignSeq <- strsplit(as.character(unlist(currAlign[[1]])), "", fixed=TRUE)

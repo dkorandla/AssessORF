@@ -17,10 +17,13 @@
 #'             minCovPct = 5,
 #'             minConCovRatio_Strong = 0.99,
 #'             limConCovRatio_NotCon = 0.8,
+#'             maxN_AltConStart = 200,
+#'             frac_AltConStart = 0.5,
 #'             minConCovRatio_Stop = 0.5,
 #'             noConStopsGeneFrac = 0.5,
-#'             minMissORFLen = 0,
-#'             allowNestedORFs = FALSE,
+#'             minNumProtHitsNORFs = 2L,
+#'             minLenNORFs = 0,
+#'             allowNestedNORFs = FALSE,
 #'             useNTermProt = FALSE,
 #'             verbose = TRUE)
 #'
@@ -53,6 +56,15 @@
 #' start not conserved. Used when making a decision on how to categorize the conserved start evidence. Must range from 0 to 1
 #' Recommended to use the default value.
 #' 
+#' @param maxN_AltConStart Maximum nucleotide distance that non-predicted, conserved starts can be away from the start of an ORF (the
+#' previous in-frame stop) in order for such starts to be considered an alternative to the predicted start.
+#' Recommend to use the default value.
+#' 
+#' @param frac_AltConStart Value from 0 to 1 describing the fractional range of positions in a ORF, starting from the previous in-frame
+#' stop and moving towards the ORF-ending stop to use in search for non-predicted, conserved starts in order for such starts to be
+#' considered an alternative to the predicted start. For example, a value of 0.25 means that the first quarter of the ORF is checked,
+#' a value of 0.5 correspond to the first half of the ORF, etc. Recommended to use the default value.
+#' 
 #' @param minConCovRatio_Stop Minimum value of the stop codon conservation to coverage ratio needed to say a position in the central
 #' genome corresponds to a conserved stop across the related genomes. Must range from 0 to 1. Lower values allow more conserved stops
 #' through. Recommended to use the default value.
@@ -62,10 +74,13 @@
 #' first quarter of the gene is checked for conserved stops, a value of 0.5 correspond to the first half of the gene, etc. Recommended
 #' to use the default value.
 #' 
-#' @param minMissORFLen Minimum ORF length required to include an ORF with protein hits
-#' but no given/predicted gene start in the final output.
+#' @param minNumProtHitsNORFs Number of peptide hits required to be in an ORF with protein hits but no given/predicted gene start in order for
+#' such an ORF to be included in the final output.
 #' 
-#' @param allowNestedORFs Logical indicating whether or not to include ORFs with protein hits but no given/predicted
+#' @param minLenNORFs Minimum ORF length required to include an ORF with protein hits but no given/predicted gene start in the
+#' final output.
+#' 
+#' @param allowNestedNORFs Logical indicating whether or not to include ORFs with protein hits but no given/predicted
 #' gene starts that are completely nested within an ORF in another frame in the final output.
 #'
 #' @param verbose Logical indicating whether or not to display progress and status messages.
@@ -164,23 +179,26 @@ AssessGenes <- function(geneLeftPos,
                         minCovPct = 5L,
                         minConCovRatio_Strong = 0.99,
                         limConCovRatio_NotCon = 0.8,
+                        maxN_AltConStart = 200,
+                        frac_AltConStart = 0.5,
                         minConCovRatio_Stop = 0.5,
                         noConStopsGeneFrac = 0.5,
-                        minMissORFLen = 0L,
-                        allowNestedORFs = FALSE,
+                        minNumProtHitsNORFs = 2L, 
+                        minLenNORFs = 0L,
+                        allowNestedNORFs = FALSE,
                         useNTermProt = FALSE,
                         verbose = TRUE) {
   
   ## Check inputs for error.
   
-  if ((!is.logical(verbose)) ||(anyNA(verbose)) || (length(verbose) != 1)) {
+  if ((!is.logical(verbose)) || (anyNA(verbose)) || (length(verbose) != 1)) {
     stop("'verbose' must be of type logical, be either TRUE or FALSE, and consist of only 1 element.")
   }
   
   ## --------------------------------------------------------------------------------------------------------------- ##
   
   if (anyNA(inputMapObj)) {
-    stop("'inputMapObj' cannot have any NAs or have more than one element.")
+    stop("'inputMapObj' cannot have any NAs.")
   }
   
   if ((is(inputMapObj, "Assessment")) && (is(inputMapObj, "DataMap"))) {
@@ -268,7 +286,7 @@ AssessGenes <- function(geneLeftPos,
     stop("'geneSource' must consist of exactly one character string.")
   }
   
-  if ((!is.numeric(minCovNum))  || (anyNA(minCovNum))) {
+  if ((!is.numeric(minCovNum)) || (anyNA(minCovNum))) {
     stop("The minimum number of related genomes required must be a valid real number.")
   }
   
@@ -281,7 +299,7 @@ AssessGenes <- function(geneLeftPos,
          "non-negative integer that is greater than 0.")
   }
   
-  if ((!is.numeric(minCovPct))  || (anyNA(minCovPct))) {
+  if ((!is.numeric(minCovPct)) || (anyNA(minCovPct))) {
     stop("The minimum percentage of related genomes required must be a valid real number.")
   }
   
@@ -303,7 +321,7 @@ AssessGenes <- function(geneLeftPos,
   }
   
   if ((minConCovRatio_Strong <= 0) || (minConCovRatio_Strong >= 1)) {
-    stop("'minConCovRatio_Strong' must be greater than 0 and less than 1.")
+    stop("'minConCovRatio_Strong' must be between 0 and 1 (inclusive).")
   }
   
   if ((!is.numeric(limConCovRatio_NotCon)) || (anyNA(limConCovRatio_NotCon))) {
@@ -315,7 +333,32 @@ AssessGenes <- function(geneLeftPos,
   }
   
   if ((limConCovRatio_NotCon <= 0) || (limConCovRatio_NotCon >= 1)) {
-    stop("'limConCovRatio_NotCon' must be greater than 0 and less than 1.")
+    stop("'limConCovRatio_NotCon' must be between 0 and 1 (inclusive).")
+  }
+  
+  if ((!is.numeric(maxN_AltConStart)) || (anyNA(maxN_AltConStart))) {
+    stop("The maximum nucleotide distance for alternative starts must be a valid real number.")
+  }
+  
+  if (length(maxN_AltConStart) != 1) {
+    stop("Exactly one number must be inputted as the maximum nucleotide distance for alternative starts.")
+  }
+  
+  if ((maxN_AltConStart %% 1 != 0) || (maxN_AltConStart <= 0)) {
+    stop("The maximum nucleotide distance for alternative starts must be a ",
+         "non-negative integer that is greater than 0.")
+  }
+  
+  if ((!is.numeric(frac_AltConStart)) || (anyNA(frac_AltConStart))) {
+    stop("'frac_AltConStart' must be a valid real number.")
+  }
+  
+  if (length(frac_AltConStart) != 1) {
+    stop("'frac_AltConStart' must consist of exactly one number.")
+  }
+  
+  if ((frac_AltConStart < 0) || (frac_AltConStart >= 1)) {
+    stop("'frac_AltConStart' must be greater than 0 and less than or equal to 1.")
   }
   
   if ((!is.numeric(minConCovRatio_Stop)) || (anyNA(minConCovRatio_Stop))) {
@@ -327,7 +370,7 @@ AssessGenes <- function(geneLeftPos,
   }
   
   if ((minConCovRatio_Stop <= 0) || (minConCovRatio_Stop >= 1)) {
-    stop("'minConCovRatio_Stop' must be greater than 0 and less than 1.")
+    stop("'minConCovRatio_Stop' must be between 0 and 1 (inclusive).")
   }
   
   if ((!is.numeric(noConStopsGeneFrac)) || (anyNA(noConStopsGeneFrac))) {
@@ -338,27 +381,39 @@ AssessGenes <- function(geneLeftPos,
     stop("'noConStopsGeneFrac' must consist of exactly one number.")
   }
   
-  if ((noConStopsGeneFrac <= 0) || (noConStopsGeneFrac >= 1)) {
-    stop("'noConStopsGeneFrac' must be greater than 0 and less than 1.")
+  if ((noConStopsGeneFrac < 0) || (noConStopsGeneFrac >= 1)) {
+    stop("'noConStopsGeneFrac' must be greater than 0 and less than or equal to 1.")
   }
   
-  if ((!is.numeric(minMissORFLen)) || (anyNA(minMissORFLen))) {
-    stop("'minMissORFLen' must be a valid real number.")
+  if ((!is.numeric(minNumProtHitsNORFs)) || (anyNA(minNumProtHitsNORFs))) {
+    stop("'minNumProtHitsNORFs' must be a valid real number.")
   }
   
-  if (length(minMissORFLen) != 1) {
-    stop("'minMissORFLen' must consist of exactly one number.")
+  if (length(minNumProtHitsNORFs) != 1) {
+    stop("'minNumProtHitsNORFs' must consist of exactly one number.")
   }
   
-  if ((minMissORFLen %% 1 != 0) || (minMissORFLen < 0)) {
-    stop("'minMissORFLen' must be a non-negative integer greater than or equal to 0.")
+  if ((minNumProtHitsNORFs %% 1 != 0) || (minNumProtHitsNORFs < 0)) {
+    stop("'minNumProtHitsNORFs' must be a non-negative integer greater than or equal to 0.")
   }
   
-  if ((!is.logical(allowNestedORFs)) ||(anyNA(allowNestedORFs)) || (length(allowNestedORFs) != 1)) {
-    stop("'allowNestedORFs' must be of type logical, be either TRUE or FALSE, and consist of only 1 element.")
+  if ((!is.numeric(minLenNORFs)) || (anyNA(minLenNORFs))) {
+    stop("'minLenNORFs' must be a valid real number.")
   }
   
-  if ((!is.logical(useNTermProt)) ||(anyNA(useNTermProt)) || (length(useNTermProt) != 1)) {
+  if (length(minLenNORFs) != 1) {
+    stop("'minLenNORFs' must consist of exactly one number.")
+  }
+  
+  if ((minLenNORFs %% 1 != 0) || (minLenNORFs < 0)) {
+    stop("'minLenNORFs' must be a non-negative integer greater than or equal to 0.")
+  }
+  
+  if ((!is.logical(allowNestedNORFs)) || (anyNA(allowNestedNORFs)) || (length(allowNestedNORFs) != 1)) {
+    stop("'allowNestedNORFs' must be of type logical, be either TRUE or FALSE, and consist of only 1 element.")
+  }
+  
+  if ((!is.logical(useNTermProt)) || (anyNA(useNTermProt)) || (length(useNTermProt) != 1)) {
     stop("'useNTermProt' must be of type logical, be either TRUE or FALSE, and consist of only 1 element.")
   }
   
@@ -425,8 +480,8 @@ AssessGenes <- function(geneLeftPos,
   }
   
   ## This function checks if there is overlapping protein evidence in other
-  ## frames. It is used when recording information for categories with protein
-  ## evidence and no gene start.
+  ## frames. It is used when recording information for ORFS / categories
+  ## with protein evidence and no gene start.
   checkOtherFrames <- function() {
     currProtHitPos <- regRange[regionalProteinHits]
     
@@ -459,7 +514,7 @@ AssessGenes <- function(geneLeftPos,
   }
   
   ## This function checks if the current ORF is completely within another ORF.
-  ## It is used to filter out some of the ORFs with protein hits and no given start.
+  ## It is used to in filtering ORFs with protein hits and no given start.
   isNestedORF <- function() {
     currProtHitPos <- regRange[regionalProteinHits]
     
@@ -489,18 +544,27 @@ AssessGenes <- function(geneLeftPos,
     return(FALSE)
   }
   
+  ## This function counts the number of protein hits in the current region.
+  ## Regions are usually ORFs bounded by two sequent, in-frame stops. 
+  ## It is used to in filtering ORFs with protein hits and no given start.
+  numProtHitsRegion <- function() {
+    currORFProt <- frameProteinHits[regRange]
+    
+    return(length(which(rle(currORFProt)$values > 0)))
+  }
+  
   ## This matrix stores information on ORFs with protein hits but no strong conserved start
   ## upstream of the protein hits and no predicted gene
-  cat1A_ORFs <- matrix(0, nrow = sum(vapply(stops, length, integer(1))), ncol = 5,
+  cat1A_ORFs <- matrix(0, nrow = sum(vapply(stops, length, integer(1))), ncol = 6,
                        dimnames = list(NULL,
-                                       c("Start", "End", "Length", "Frame", "OtherProtFrame")))
+                                       c("Start", "End", "Length", "NumProtHits", "Frame", "OtherProtFrame")))
   cat1A_Counter <- 0L
   
   ## This matrix stores information on ORFs with protein hits and at least one strong conserved
   ## start upstream of the protein hits but no predicted gene.
-  cat1B_ORFs <- matrix(0, nrow = sum(vapply(stops, length, integer(1))), ncol = 5,
+  cat1B_ORFs <- matrix(0, nrow = sum(vapply(stops, length, integer(1))), ncol = 6,
                        dimnames = list(NULL,
-                                       c("Start", "End", "Length", "Frame", "OtherProtFrame")))
+                                       c("Start", "End", "Length", "NumProtHits", "Frame", "OtherProtFrame")))
   cat1B_Counter <- 0L
   
   ## This vector stores the categorization for each predicted gene.
@@ -709,7 +773,7 @@ AssessGenes <- function(geneLeftPos,
       
       if (useProt) {
         ## Get the protein hits in that region.
-        regionalProteinHits <- frameProteinHits[regRange] > 0
+        regionalProteinHits <- (frameProteinHits[regRange] > 0)
         regionalProteinHitStarts <- which(diff(c(0, regionalProteinHits)) == 1) # start
         
         ## If there are protein hits, determine the start of the first protein hit.
@@ -734,23 +798,39 @@ AssessGenes <- function(geneLeftPos,
       ## If evolutionary conservation is being used in assessement,
       ## find the conserved starts in that region.
       if (useCons) {
-        ## As long as the predicted start maps to a designated start codon, ...
+        ## As long as the predicted start maps to a designated start codon, find
+        ## which positions have some conservation and coverage in the region.
         if ((length(regionalPredictedStart) <= 0) ||
             !(is.na(strandConservedStarts[regionalPredictedStart]))) {
-          ## .... find which start positions have some conservation and coverage in the region.
-          allConStartIdxs <- which((strandConservedStarts[regRange] / strandCoverage[regRange] > 0) &
-                                     (strandCoverage[regRange] >= minCov) &
-                                     (((regRange - cFrame) %% 3) == 0))
+          ## First, determine the range in which to look for conserved starts based
+          ## on how far starts alternative to the given/predicted start (if there is one)
+          ## can be from the ORF-starting stop.
+          if (length(regionalPredictedStart) <= 0) {
+            csRange <- regRange
+          } else {
+            currN <- min(maxN_AltConStart, ((regEnd - regStart) * frac_AltConStart))
+            
+            csRange <- (regStart):(regStart + currN)
+            
+            if (regionalPredictedStart > (regStart + currN)) {
+              csRange <- c(csRange, regionalPredictedStart)
+            }
+          }
           
-          if (length(allConStartIdxs) >= 1) {
-            ## If there are any such positions, get all possible conserved starts.
-            allConservedStarts <- regRange[allConStartIdxs]
+          ## Next, find the in-frame positions that have some conservation and coverage.
+          conStartIdxs <- which((strandConservedStarts[csRange] / strandCoverage[csRange] > 0) &
+                                  (strandCoverage[csRange] >= minCov) &
+                                  (((csRange - cFrame) %% 3) == 0))
+          
+          if (length(conStartIdxs) >= 1) {
+            ## If there are any such positions, get the possible conserved starts.
+            preProtConStarts <- csRange[conStartIdxs]
             
             ## Only the conserved starts upstream of the protein hits can be used as evidence.
             if (!noProt) {
-              conStarts <- allConservedStarts[(allConservedStarts <= firstProteinHitStart)]
+              conStarts <- preProtConStarts[(preProtConStarts <= firstProteinHitStart)]
             } else {
-              conStarts <- allConservedStarts
+              conStarts <- preProtConStarts
             }
             
             ## If there are conserved starts (upstream of any protein hits), ...
@@ -831,11 +911,19 @@ AssessGenes <- function(geneLeftPos,
         ## There are protein hits in that region.
         ## Check if there is any predicted start within that region.
         if (length(regionalPredictedStart) <= 0) {
-          ## No predicted starts within that region.
+          ## There are no predicted starts within the region.
           
-          if ((regEnd - regStart) >= minMissORFLen) {
-            ## Check if region is nested, if necessary.
-            if ((allowNestedORFs) || !(isNestedORF())) {
+          ## Count the number of peptide hits within the region.
+          numProtHits <- numProtHitsRegion()
+          
+          ## If there are enough peptide hits within the region and the region is long enough, ...
+          if ((numProtHits >= minNumProtHitsNORFs) && ((regEnd - regStart) >= minLenNORFs)) {
+            ## ... check if region is nested, if necessary.
+            if ((allowNestedNORFs) || !(isNestedORF())) {
+              ## The region is not nested or nested regions are allowed.
+              
+              ## Adjust the region-bounding positions to reflect the start and end of the potential
+              ## ORF in forward-strand terms.
               if (frameID <= 3) {
                 cat1Pos <- c(regStart + 3L, regEnd + 2L)
               } else {
@@ -848,13 +936,13 @@ AssessGenes <- function(geneLeftPos,
                 ## "N CS- PE+"
                 cat1A_Counter <- cat1A_Counter + 1L
                 
-                cat1A_ORFs[cat1A_Counter, ] <- c(cat1Pos, regEnd - regStart, frameID, checkOtherFrames())
+                cat1A_ORFs[cat1A_Counter, ] <- c(cat1Pos, regEnd - regStart, numProtHits, frameID, checkOtherFrames())
               } else {
                 ## Protein hit with conserved start upstream but no predicted start --> Category 1B
                 ## "N CS< PE+"
                 cat1B_Counter <- cat1B_Counter + 1L
                 
-                cat1B_ORFs[cat1B_Counter, ] <- c(cat1Pos, regEnd - regStart, frameID, checkOtherFrames())
+                cat1B_ORFs[cat1B_Counter, ] <- c(cat1Pos, regEnd - regStart, numProtHits, frameID, checkOtherFrames())
               }
             }
           }
@@ -900,8 +988,14 @@ AssessGenes <- function(geneLeftPos,
       ## There should be strong conserved start(s) and a given gene start by this point.
       
       ## Determine which of the all possible conserved starts in the region have bad scores.
-      allConStartScores <- strandConservedStarts[allConservedStarts] / strandCoverage[allConservedStarts]
-      badAllConStartIdxs <- which(allConStartScores < limConCovRatio_NotCon)
+      regConStartIdxs <- which((strandConservedStarts[regRange] / strandCoverage[regRange] > 0) &
+                                 (strandCoverage[regRange] >= minCov) &
+                                 (((regRange - cFrame) %% 3) == 0))
+      
+      regConStarts <- regRange[regConStartIdxs]
+      regConStartScores <- strandConservedStarts[regConStarts] / strandCoverage[regConStarts]
+      
+      badAllConStartIdxs <- which(regConStartScores < limConCovRatio_NotCon)
       
       ## Determine which of the conserved starts that are upstream of the protein evidence have bad scores.
       badConStartIdxs <- which(conStartScores < limConCovRatio_NotCon)

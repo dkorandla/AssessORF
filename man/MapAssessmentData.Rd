@@ -22,6 +22,7 @@ MapAssessmentData(genomes_DBFile,
                   ema_MinVal = 0.6,
                   useProt = TRUE,
                   useCons = TRUE,
+                  processors = 1,
                   verbose = TRUE)
 }
 \arguments{
@@ -75,6 +76,9 @@ Default value is true. Cannot be false if \code{useCons} is false.}
 
 \item{useCons}{Logical indicating whether or not evolutionary conservation evidence should be mapped to the genome.
 Default value is true. Cannot be false if \code{useProt} is false.}
+
+\item{processors}{Number describing the how many processors to use with DECIPHER functions. Should be either a
+positive integer that describes the number of processors to use or NULL to detect and use all available processors.}
 
 \item{verbose}{Logical indicating whether or not to display progress and status messages.}
 }
