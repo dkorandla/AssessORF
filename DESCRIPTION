@@ -1,10 +1,10 @@
 Package: AssessORF
 Type: Package
 Title: Assess Gene Predictions Using Proteomics and Evolutionary Conservation
-Version: 1.1.7
+Version: 1.3.1
 Date: 2019-04-29
 Authors@R: c(
-    person("Deepank", "Korandla", email = "dkorandl@andrew.cmu.edu", role = c("aut", "cre")),
+    person("Deepank", "Korandla", email = "dkorandl@alumni.cmu.edu", role = c("aut", "cre")),
     person("Erik", "Wright", email = "eswright@pitt.edu", role = "aut"))
 Description: In order to assess the quality of a set of predicted genes for a genome, evidence
     must first be mapped to that genome. Next, each gene must be categorized based on how strong

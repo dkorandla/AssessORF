@@ -441,6 +441,8 @@ MapAssessmentData <- function(genomes_DBFile,
   
   ## --------------------------------------------------------------------------------------------------------------- ##
   
+  ## Get the strain's genome, i.e. the central genome, from the database.
+  ## The retrieved DNA string is assumed to be the forward strand of that genome.
   fwdGenome <- SearchDB(dbFile = genomes_DBFile, tblName = tblName, identifier = central_ID,
                         type = "DNAStringSet", processors = processors, verbose = FALSE)
   
@@ -451,9 +453,12 @@ MapAssessmentData <- function(genomes_DBFile,
   
   fwdGenome <- DNAStringSet(unlist(fwdGenome))
   
+  ## Get the reverse strand of the central genome.
+  revGenome <- reverseComplement(fwdGenome)
+  
   ## --------------------------------------------------------------------------------------------------------------- ##
   
-  revGenome <- reverseComplement(fwdGenome)
+  ## Translate each of the six frames of the genome and build the lists used to store the proteomics mappings.
   
   fwdFrame1AA <- suppressWarnings(translate(fwdGenome, if.fuzzy.codon="solve"))
   fwdFrame2AA <- suppressWarnings(translate(subseq(fwdGenome, 2), if.fuzzy.codon="solve"))
@@ -476,6 +481,8 @@ MapAssessmentData <- function(genomes_DBFile,
   ## --------------------------------------------------------------------------------------------------------------- ##
   
   genomeLen <- width(fwdGenome)
+  
+  ## Initialize vectors for storing evolutionary conservation mappings.
   
   fwdConStops <- revConStops <- fwdCov <- revCov <- integer(genomeLen)
   
@@ -625,6 +632,11 @@ MapAssessmentData <- function(genomes_DBFile,
         setTxtProgressBar(pBar_Prot, rIdx / length(protHits_Seqs))
       }
     }
+    
+    if (verbose) {
+      cat("\n")
+      message("Proteomics hits mapped.\n")
+    }
   } else {
     protHits_IsNTerm <- FALSE
   }
@@ -666,6 +678,11 @@ MapAssessmentData <- function(genomes_DBFile,
       }
     }
     
+    if (verbose) {
+      cat("\n")
+      message("Distance from related genomes to central genome (i.e. strain's genome) measured.\n")
+    }
+    
     ## --------------------------------------------------------------------------------------------------------------- ##
     
     ## Determine which related genomes to use.
@@ -698,6 +715,10 @@ MapAssessmentData <- function(genomes_DBFile,
     }
     
     numTopR <- length(validRelated_IDs)
+    
+    if (verbose) {
+      message("Most distant related genomes selected. Beginning evolutionary conservation mapping.\n")
+    }
     
     ## --------------------------------------------------------------------------------------------------------------- ##
     
@@ -886,6 +907,11 @@ MapAssessmentData <- function(genomes_DBFile,
       if (verbose) {
         setTxtProgressBar(pBar_Synteny, rIdx / numTopR)
       }
+    }
+    
+    if (verbose) {
+      cat("\n")
+      message("Evolutionary conservation mapped.")
     }
   } else {
     validRelated_IDs <- character()

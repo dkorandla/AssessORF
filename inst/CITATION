@@ -1,0 +1,12 @@
+bibentry(bibtype = "Article",
+         title = "AssessORF: combining evolutionary conservation and proteomics to assess prokaryotic gene predictions",
+         author = c(as.person("Deepank R. Korandla"),
+                    as.person("Jacob M. Wozniak"),
+                    as.person("Anaamika Campeau"),
+                    as.person("David J. Gonzalez"),
+                    as.person("Erik S. Wright")),
+         journal = "Bioinformatics",
+         publisher = "Oxford Univeristy Press",
+         year = "2019",
+         doi = "10.1093/bioinformatics/btz714"
+)

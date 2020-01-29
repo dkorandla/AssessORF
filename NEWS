@@ -1,3 +1,10 @@
+# AssessORF 1.3
+
+Changes in version 1.3.1 (2019-10-22)
+* Data for six new strains, S. pyogenes AP1, E. coli BW25113, S. aureus HG001, L. lactis MG1363, B. subtilis NCIB 3610, and L. monocytogenes 10403S, have been added to AssessORFData 
+* CITATION file added as corresponding paper has now been published
+* Updated MapAssessmentData such that verbose output is cleaner and more informative
+
 # AssessORF 1.1
 
 Changes in version 1.1.7 (2019-04-29)
